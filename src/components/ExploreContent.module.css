@@ -1,0 +1,103 @@
+.main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.header {
+  padding: 3rem 0 1.5rem;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+
+.header p {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.searchForm {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--purple-dim);
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  outline: none;
+}
+.searchInput:focus {
+  border-color: var(--purple-accent);
+}
+.searchInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.searchBtn {
+  padding: 0.625rem 1rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.searchBtn:hover {
+  color: var(--text-primary);
+}
+
+.filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filterSelect {
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--purple-dim);
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 0.75rem;
+}
+
+.state {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .filters {
+    flex-direction: column;
+  }
+}

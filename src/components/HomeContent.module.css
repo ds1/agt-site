@@ -1,0 +1,186 @@
+.main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+/* Hero */
+.hero {
+  padding: 5rem 0 3rem;
+}
+
+.headline {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 0.75rem;
+}
+
+.subline {
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  max-width: 480px;
+}
+
+/* Search */
+.searchForm {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.searchBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border: 1px solid var(--purple-dim);
+  border-radius: 8px;
+  padding: 0 1rem;
+  transition: border-color 0.15s;
+}
+.searchBox:focus-within {
+  border-color: var(--purple-accent);
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  padding: 0.75rem 0;
+}
+.searchInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.searchTld {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-left: 0.25rem;
+  user-select: none;
+}
+
+.searchBtn {
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--purple-accent);
+  color: white;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.searchBtn:hover {
+  background: var(--purple-muted);
+}
+
+/* Sections */
+.section {
+  margin-top: 4rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.25rem;
+  color: var(--text-primary);
+}
+
+/* Manifest preview */
+.manifestPreview {
+  background: var(--bg-surface);
+  border: 1px solid var(--purple-dim);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.8;
+}
+
+.manifestLine {
+  display: flex;
+  gap: 1rem;
+}
+
+.mKey {
+  color: var(--purple-accent);
+  flex-shrink: 0;
+  min-width: 160px;
+}
+
+.mVal {
+  color: var(--text-secondary);
+}
+
+.manifestCaption {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+}
+
+/* Steps */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.stepNum {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  color: var(--purple-accent);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.step strong {
+  display: block;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  margin-bottom: 0.125rem;
+}
+
+.step p {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Code block */
+.codeBlock {
+  background: var(--bg-surface);
+  border: 1px solid var(--purple-dim);
+  border-radius: 8px;
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}

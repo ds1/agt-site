@@ -350,7 +350,7 @@ Domains without `agt-version=1` sentinel fall through to normal content resoluti
 | Component | Purpose |
 |-----------|---------|
 | `Nav` | Sticky nav bar (.agt wordmark, Explore, Claim links) |
-| `Footer` | Minimal footer (@agtdomains, Spec link) |
+| `Footer` | Minimal footer (@agtnames, Spec link) |
 | `HomeContent` | Landing page content (client component) |
 | `ClaimContent` | Multi-step claim flow (client component, uses `useSearchParams`) |
 | `AgentConfigForm` | Agent configuration form (protocols, capabilities, endpoints) |

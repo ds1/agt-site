@@ -14,8 +14,8 @@ export default function Footer() {
     >
       <span>.agt — the agent namespace</span>
       <div style={{ display: "flex", gap: "1.5rem" }}>
-        <a href="https://x.com/agtdomains" target="_blank" rel="noopener noreferrer">
-          @agtdomains
+        <a href="https://x.com/agtnames" target="_blank" rel="noopener noreferrer">
+          @agtnames
         </a>
         <a href="/docs/agt-manifest-spec" target="_blank">
           Spec

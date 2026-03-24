@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: ".agt — Name your agent",
     description: "The identity layer for AI agents.",
-    creator: "@agtdomains",
+    creator: "@agtnames",
   },
 };
 

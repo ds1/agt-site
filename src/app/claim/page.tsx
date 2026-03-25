@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import ClaimContent from "@/components/ClaimContent";
 
 export const metadata = {
-  title: "Claim a name — .agt",
+  title: "Claim an agent name — .agt",
   description: "Search for and claim a .agt name for your AI agent",
 };
 

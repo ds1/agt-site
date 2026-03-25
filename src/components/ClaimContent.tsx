@@ -149,7 +149,7 @@ export default function ClaimContent() {
   return (
     <main className={styles.main}>
       <div className={styles.header}>
-        <h1>Claim a name</h1>
+        <h1>Claim an agent name</h1>
         <p>Search for a .agt name for your agent or project</p>
       </div>
 
@@ -161,7 +161,7 @@ export default function ClaimContent() {
               <input
                 type="text"
                 className={styles.searchInput}
-                placeholder="researcher"
+                placeholder="youragent"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 spellCheck={false}

@@ -31,7 +31,7 @@ export default function HomeContent() {
             <input
               type="text"
               className={styles.searchInput}
-              placeholder="researcher"
+              placeholder="youragent"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               spellCheck={false}

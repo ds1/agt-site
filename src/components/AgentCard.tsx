@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import styles from "./AgentCard.module.css";
 
 export interface AgentManifest {

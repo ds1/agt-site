@@ -17,8 +17,8 @@ export default function Footer() {
         <a href="https://x.com/agtnames" target="_blank" rel="noopener noreferrer">
           @agtnames
         </a>
-        <a href="/docs/agt-manifest-spec" target="_blank">
-          Spec
+        <a href="/docs" target="_blank">
+          Docs
         </a>
       </div>
     </footer>

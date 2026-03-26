@@ -4,50 +4,76 @@ Last updated: 2026-03-26
 
 ## Current state
 
-Site is built and deployed to Vercel. Stripe payment integration complete (mock mode). Docs section live with 7 pages. Custom favicon. Celebration page with NFT details, social share, MetaMask import instructions. Domain not yet connected to Vercel. Stripe not yet configured for production.
+Site built and deployed to Vercel (agtnames.com). Stripe payment integration complete in mock mode. Full docs section. Celebration page with NFT details. Not yet accepting real payments.
 
-## In progress
+## Launch checklist
 
-Nothing active — between work sessions.
+### Blockers (can't launch without)
+- [ ] #20 Configure Stripe for production
+- [ ] #17 Connect custom domain to Vercel
+- [ ] #25 Pricing margin on domain registration
+- [ ] #26 Terms of Service and Privacy Policy pages
+- [ ] #27 Freename API access from Vercel (IP whitelisting)
+- [ ] #1 End-to-end claim flow testing with real APIs
+
+### Important (should have at launch)
+- [ ] #19 SEO & meta: OG image, sitemap, robots.txt
+- [ ] #28 Confirmation email after domain purchase
+- [ ] #29 Error monitoring and alerting
+- [ ] #30 Support contact visible on all pages
+- [ ] #31 Rate limiting on API routes
+- [ ] #32 Analytics integration
+- [ ] #33 Email capture in claim flow
+
+### Marketing launch
+- [ ] #34 Launch announcement — X thread + blog post
+- [ ] #35 Developer community seeding — HN, Reddit, Discord
+- [ ] #36 SEO content strategy
+- [ ] #37 Existing .agt holder outreach
+- [ ] #38 Partnership outreach — agent framework integrations
+- [ ] #39 Social proof — showcase agents on landing page
+- [ ] #40 Launch video — screen recording of claim flow
 
 ## Blocked
 
-- **Promo code support** (#18) — waiting on Freename to confirm whether the reseller API supports coupon/promo codes
-
-## Up next (phase 1)
-
-- [ ] Configure Stripe for production (#20)
-- [ ] Connect agtnames.com domain to Vercel (#17)
-- [ ] SEO & meta: OG image, sitemap, robots.txt, metadataBase (#19)
-- [ ] End-to-end claim flow testing against live APIs (#1)
+- **Promo code support** (#18) — waiting on Freename re: reseller API coupon support
 
 ## Recently completed
 
-- Stripe Checkout integration — payment required before domain registration (#13 — closed)
-  - Webhook-driven fulfillment with auto-refund on failure
-  - Server-side price verification (prevents manipulation)
-  - Mock mode for local testing without Stripe or Freename
-- Full docs section: overview, manifest spec, resolver SDK, API reference, user flows, architecture, roadmap (#21 — closed)
-- Celebration page: NFT card, social share (X, LinkedIn, Discord, Reddit), NFT details with copy buttons, MetaMask import, OpenSea/Polygonscan links
-- Custom .agt favicon (SVG)
-- Contextual headers per claim flow step
-- Placeholder text and copy updates
-- Site scaffolded with Next.js 16 / React 19 / Tailwind 4
-- Full inline claim flow: search → pay → fulfill → mint → celebrate → configure
-- Explore page with agent directory
-- Agent config form (protocols, capabilities, endpoints)
-- Freename reseller API integration (auth, search, zone creation, minting, records)
-- Technical reference docs
-- Rebrand from @agtdomains to @agtnames (#16 — closed)
-- Deployed to Vercel production
+- Stripe Checkout integration with webhook-driven fulfillment (#13)
+- Celebration page: NFT card, social share, copy buttons, MetaMask import (#22)
+- Mock mode for local development (#23)
+- Full docs section: 7 pages with sidebar nav (#21)
+- Custom .agt favicon (#24)
+- Rebrand from @agtdomains to @agtnames (#16)
 
 ## Open issues by phase
 
-### Phase 1 — Foundation
+### Phase 1 — Foundation (launch blockers)
 - #1 End-to-end claim flow testing
 - #17 Connect custom domain to Vercel
 - #19 SEO & meta
 - #20 Configure Stripe for production
+- #25 Pricing margin
+- #26 Terms of Service + Privacy Policy
+- #27 Freename API IP whitelisting
+
+### Launch support
+- #28 Confirmation emails
+- #29 Error monitoring
+- #30 Support contact
+- #31 Rate limiting
+- #32 Analytics
+- #33 Email capture
+
+### Marketing
+- #34 Launch announcement
+- #35 Community seeding
+- #36 SEO content strategy
+- #37 Existing holder outreach
+- #38 Partnership outreach
+- #39 Social proof on landing page
+- #40 Launch video
 
 ### Phase 2 — Ecosystem
 - #2 Record management dashboard
@@ -59,12 +85,12 @@ Nothing active — between work sessions.
 
 ### Phase 3 — Infrastructure
 - #7 Handshake DNS sync service
-- #8 CLI tool: agt init / register / update / resolve
-- #9 Browser agent interaction: MCP/A2A client
-- #10 Manifest v2: IPFS-hosted JSON with signatures
+- #8 CLI tool
+- #9 Browser agent interaction
+- #10 Manifest v2
 
 ### Phase 4 — Network effects
 - #11 Agent-to-agent discovery protocol
 - #12 Trust and reputation layer
 - #14 Open standard publication
-- #15 Multi-platform clients (VS Code, Slack, etc.)
+- #15 Multi-platform clients

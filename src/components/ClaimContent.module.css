@@ -4,6 +4,10 @@
   padding: 0 1.5rem 4rem;
 }
 
+.main:has(.doneWrap) {
+  max-width: 480px;
+}
+
 .header {
   padding: 3rem 0 1.5rem;
 }
@@ -267,38 +271,405 @@
   margin-top: 0.25rem;
 }
 
-/* Done card */
-.doneCard {
-  background: var(--bg-surface);
-  border: 1px solid var(--purple-dim);
-  border-radius: 10px;
-  padding: 1.5rem;
+/* Done — celebration layout */
+.doneWrap {
+  animation: doneAppear 0.5s ease-out;
 }
 
-.doneCard h2 {
-  font-family: var(--font-mono);
-  font-size: 1.25rem;
+@keyframes doneAppear {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Congrats heading */
+.doneHeader {
+  text-align: center;
+  padding: 3rem 0 1.5rem;
+}
+
+.doneCongrats {
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  line-height: 1.35;
+  margin-bottom: 0.75rem;
 }
 
-.doneStatus {
+.doneDomainInline {
+  font-family: var(--font-mono);
+  color: var(--purple-accent);
+}
+
+.doneOwner {
   font-size: 0.875rem;
   color: var(--text-secondary);
-  margin-bottom: 1.5rem;
 }
 
-.doneActions {
+.doneWalletCode {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  background: var(--bg-elevated);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
+/* NFT card */
+.nftCard {
+  aspect-ratio: 1;
+  max-width: 360px;
+  margin: 2rem auto;
+  border-radius: 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(124, 107, 189, 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(74, 222, 128, 0.08) 0%, transparent 50%),
+    linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+  border: 1px solid var(--purple-accent);
+  box-shadow:
+    0 0 60px rgba(124, 107, 189, 0.15),
+    0 0 120px rgba(124, 107, 189, 0.05);
+}
+
+.nftInner {
+  width: 100%;
+  height: 100%;
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  container-type: inline-size;
+}
+
+.nftBadge {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--purple-accent);
+  background: rgba(124, 107, 189, 0.15);
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+}
+
+.nftName {
+  font-family: var(--font-mono);
+  font-size: min(2.5rem, 18cqi);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.nftTld {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--purple-accent);
+  margin-top: 0.25rem;
+}
+
+.nftFooter {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-.doneLink {
+.nftChain {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.nftOwner {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+}
+
+/* Share */
+.shareSection {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.sharePrompt {
   font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.shareLinks {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--purple-dim);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.shareBtn:hover {
+  border-color: var(--purple-accent);
+  color: var(--text-primary);
+  background: var(--purple-glow);
+}
+
+/* NFT details */
+.nftDetails {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--purple-dim);
+}
+
+.nftDetailsTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 1rem;
+}
+
+.nftDetailRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.nftDetailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--bg-surface);
+  border-radius: 8px;
+  border: 1px solid var(--purple-dim);
+}
+
+.nftDetailLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.nftDetailValue {
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.nftDetailMono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  user-select: all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nftDetailValueRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.nftDetailLink {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   color: var(--purple-accent);
   text-decoration: none;
 }
-.doneLink:hover {
+.nftDetailLink:hover {
   color: var(--text-primary);
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--purple-dim);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.copyBtn:hover {
+  border-color: var(--purple-accent);
+  color: var(--text-primary);
+  background: var(--purple-glow);
+}
+
+.nftDetailActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.nftImportDetails {
+  margin-top: 0.5rem;
+}
+
+.nftImportSummary {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem 0;
+  user-select: none;
+}
+.nftImportSummary:hover {
+  color: var(--text-primary);
+}
+
+.nftImportSteps {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.nftImportSteps li {
+  margin-bottom: 0.375rem;
+}
+
+/* Next steps */
+.nextSteps {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--purple-dim);
+}
+
+.nextStepsTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 1rem;
+}
+
+.nextStepsGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.nextStepCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--purple-dim);
+  background: var(--bg-surface);
+  cursor: pointer;
+  text-decoration: none;
+  text-align: left;
+  font-family: var(--font-sans);
+  transition: border-color 0.15s, background 0.15s;
+}
+.nextStepCard:hover {
+  border-color: var(--purple-accent);
+  background: var(--bg-elevated);
+}
+
+.nextStepCardDone {
+  border-radius: 10px;
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  background: rgba(74, 222, 128, 0.04);
+}
+
+.nextStepCardDoneSummary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.nextStepCardDoneSummary::-webkit-details-marker {
+  display: none;
+}
+
+.configRecordsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0 1.25rem 1rem;
+}
+
+.configRecord {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.nextStepIcon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  color: var(--purple-accent);
+}
+
+.nextStepLabel {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nextStepDesc {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 0.125rem;
 }

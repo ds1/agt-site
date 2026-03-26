@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import FreenameAPI from "@/lib/freename-api";
 
+const MOCK = process.env.MOCK_FREENAME === "true";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   let name = searchParams.get("name");
@@ -32,6 +34,19 @@ export async function GET(request: Request) {
   }
 
   const fullDomain = `${name}.agt`;
+
+  if (MOCK) {
+    const taken = ["test", "hello", "agent"];
+    const isTaken = taken.includes(name);
+    return NextResponse.json({
+      success: true,
+      name,
+      fullDomain,
+      status: isTaken ? "unavailable" : "available",
+      available: !isTaken,
+      price: isTaken ? null : { currency: "USD", amount: 9.99 },
+    });
+  }
 
   try {
     const api = new FreenameAPI();

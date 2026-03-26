@@ -8,7 +8,7 @@ interface Props {
   zoneUuid: string;
   walletAddress: string;
   domain: string;
-  onComplete: (result: { configured: boolean; recordCount?: number }) => void;
+  onComplete: (result: { configured: boolean; recordCount?: number; records?: string[] }) => void;
   onSkip: () => void;
 }
 
@@ -84,7 +84,16 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
       const data = await resp.json();
       if (!resp.ok) throw new Error(data.error || "Failed to save");
 
-      onComplete({ configured: true, recordCount: data.recordCount });
+      const records: string[] = ["agt-version=1"];
+      if (config.name) records.push(`agt-name=${config.name}`);
+      if (config.description) records.push(`agt-description=${config.description}`);
+      if (config.icon) records.push(`agt-icon=${config.icon}`);
+      if (config.protocols) config.protocols.forEach(p => records.push(`agt-protocol=${p}`));
+      if (config.capabilities) config.capabilities.forEach(c => records.push(`agt-cap=${c}`));
+      if (config.endpoints) config.endpoints.forEach(e => records.push(`agt-endpoint-${e.protocol}=${e.url}`));
+      if (config.pricing) records.push(`agt-pricing=${config.pricing}`);
+      if (config.owner) records.push(`agt-owner=${config.owner}`);
+      onComplete({ configured: true, recordCount: data.recordCount, records });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
     } finally {

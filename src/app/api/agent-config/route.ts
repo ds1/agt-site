@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import FreenameAPI from "@/lib/freename-api";
 
+const MOCK = process.env.MOCK_FREENAME === "true";
+
 interface AgentConfig {
   name?: string;
   description?: string;
@@ -63,6 +65,14 @@ export async function POST(request: Request) {
     }
     if (config.owner) {
       records.push({ type: "TXT", name: "@", value: `agt-owner=${config.owner}`, ttl: 300 });
+    }
+
+    if (MOCK) {
+      console.log(`[MOCK] Agent config for zone ${zoneUuid}:`, records.map(r => r.value));
+      return NextResponse.json({
+        success: true,
+        recordCount: records.length,
+      });
     }
 
     const api = new FreenameAPI();

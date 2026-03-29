@@ -184,3 +184,57 @@
   line-height: 1.7;
   color: var(--text-secondary);
 }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .main {
+    padding: 0 1rem 3rem;
+  }
+
+  .hero {
+    padding: 2.5rem 0 2rem;
+  }
+
+  .headline {
+    font-size: 1.75rem;
+  }
+
+  .subline {
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section {
+    margin-top: 2.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1rem;
+  }
+
+  .manifestLine {
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .mKey {
+    min-width: unset;
+    font-size: 0.75rem;
+  }
+
+  .mVal {
+    font-size: 0.8125rem;
+    padding-left: 0.75rem;
+  }
+
+  .manifestPreview {
+    font-size: 0.75rem;
+    padding: 0.875rem 1rem;
+    line-height: 1.6;
+  }
+
+  .codeBlock {
+    font-size: 0.75rem;
+    padding: 1rem;
+  }
+}

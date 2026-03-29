@@ -125,3 +125,44 @@
   padding: 0.25em 0.6em;
   border-radius: 4px;
 }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .main {
+    padding: 2rem 1rem 3rem;
+  }
+
+  .article h1 {
+    font-size: 1.5rem;
+  }
+
+  .lead {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .article h2 {
+    font-size: 1.125rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+  }
+
+  .article pre {
+    padding: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .article pre code {
+    font-size: 0.75rem;
+  }
+
+  .article table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .article td:first-child {
+    white-space: normal;
+  }
+}

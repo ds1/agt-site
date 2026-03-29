@@ -1,19 +1,10 @@
+import styles from "./Footer.module.css";
+
 export default function Footer() {
   return (
-    <footer
-      style={{
-        borderTop: "1px solid var(--purple-dim)",
-        padding: "2rem",
-        marginTop: "auto",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        fontSize: "0.8125rem",
-        color: "var(--text-tertiary)",
-      }}
-    >
+    <footer className={styles.footer}>
       <span>.agt — the agent namespace</span>
-      <div style={{ display: "flex", gap: "1.5rem" }}>
+      <div className={styles.links}>
         <a href="https://x.com/agtnames" target="_blank" rel="noopener noreferrer">
           @agtnames
         </a>

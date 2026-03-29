@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 2026-03-26
+Last updated: 2026-03-29
 
 ## Current state
 
@@ -39,6 +39,8 @@ Site built and deployed to Vercel (agtnames.com). Stripe payment integration com
 - **Promo code support** (#18) — waiting on Freename re: reseller API coupon support
 
 ## Recently completed
+
+- 24 alt-TLD/variation domains configured with 301 redirects to agtnames.com (SEO consolidation + brand protection)
 
 - Stripe Checkout integration with webhook-driven fulfillment (#13)
 - Celebration page: NFT card, social share, copy buttons, MetaMask import (#22)

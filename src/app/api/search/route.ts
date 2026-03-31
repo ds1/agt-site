@@ -1,9 +1,19 @@
 import { NextResponse } from "next/server";
 import FreenameAPI from "@/lib/freename-api";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const MOCK = process.env.MOCK_FREENAME === "true";
 
 export async function GET(request: Request) {
+  const ip = getClientIp(request);
+  const { ok } = rateLimit(`search:${ip}`, 30);
+  if (!ok) {
+    return NextResponse.json(
+      { success: false, error: "Too many requests. Please try again shortly." },
+      { status: 429 }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   let name = searchParams.get("name");
 

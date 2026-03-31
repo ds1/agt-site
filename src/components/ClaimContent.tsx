@@ -25,6 +25,7 @@ export default function ClaimContent() {
   // Claim flow state
   const [step, setStep] = useState<Step>("search");
   const [wallet, setWallet] = useState("");
+  const [email, setEmail] = useState("");
   const [zoneUuid, setZoneUuid] = useState<string | null>(null);
   const [domain, setDomain] = useState("");
   const [mintStatus, setMintStatus] = useState("PENDING");
@@ -102,6 +103,7 @@ export default function ClaimContent() {
         body: JSON.stringify({
           domain: result.fullDomain,
           walletAddress: wallet,
+          email: email || undefined,
         }),
       });
 
@@ -322,6 +324,21 @@ export default function ClaimContent() {
                     />
                     <span className={styles.walletHint}>
                       The NFT will be minted to this address on Polygon
+                    </span>
+                  </div>
+
+                  <div className={styles.walletField}>
+                    <label className={styles.walletLabel}>Email (optional)</label>
+                    <input
+                      type="email"
+                      className={styles.walletInput}
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
+                    />
+                    <span className={styles.walletHint}>
+                      For order confirmation and support. Never shared.
                     </span>
                   </div>
 

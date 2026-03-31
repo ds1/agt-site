@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 2026-03-29
+Last updated: 2026-03-30
 
 ## Current state
 
@@ -40,6 +40,9 @@ Site built and deployed to Vercel (agtnames.com). Stripe payment integration com
 
 ## Recently completed
 
+- Closed 32 duplicate GitHub issues (#47-78) migrated from ds1/web3-browser — consolidated into originals
+- Added progress comments to #19 (SEO) and #36 (SEO content strategy) re: domain redirects
+- Labeled #18 (promo codes) as blocked
 - 24 alt-TLD/variation domains configured with 301 redirects to agtnames.com (SEO consolidation + brand protection)
 
 - Stripe Checkout integration with webhook-driven fulfillment (#13)
@@ -59,6 +62,12 @@ Site built and deployed to Vercel (agtnames.com). Stripe payment integration com
 - #25 Pricing margin
 - #26 Terms of Service + Privacy Policy
 - #27 Freename API IP whitelisting
+- #41 Namebase.io offline — HNS DNS management unavailable
+- #42 E2E agent config testing (registration site)
+- #43 Verify Freename API cache clears for agt.agt records
+- #44 Add agt-icon to registration site agent config form
+- #45 Add agt-website record type for agent homepages
+- #46 Publish .agt manifest spec as standalone document
 
 ### Launch support
 - #28 Confirmation emails

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://agtnames.com"),
   title: ".agt — Name your agent",
   description: "The identity layer for AI agents. Claim a name, declare capabilities, get discovered.",
   openGraph: {

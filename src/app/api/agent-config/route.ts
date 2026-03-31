@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import FreenameAPI from "@/lib/freename-api";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const MOCK = process.env.MOCK_FREENAME === "true";
 
@@ -15,6 +16,15 @@ interface AgentConfig {
 }
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const { ok } = rateLimit(`agent-config:${ip}`, 10);
+  if (!ok) {
+    return NextResponse.json(
+      { success: false, error: "Too many requests. Please try again shortly." },
+      { status: 429 }
+    );
+  }
+
   try {
     const { zoneUuid, config } = (await request.json()) as {
       zoneUuid: string;

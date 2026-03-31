@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import stripe from "@/lib/stripe";
 import FreenameAPI from "@/lib/freename-api";
 import { randomUUID } from "crypto";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const MOCK = process.env.MOCK_FREENAME === "true";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
@@ -11,8 +12,17 @@ const mockSessions = new Map<string, { domain: string; walletAddress: string }>(
 export { mockSessions };
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const { ok } = rateLimit(`checkout:${ip}`, 5);
+  if (!ok) {
+    return NextResponse.json(
+      { success: false, error: "Too many checkout attempts. Please wait a minute." },
+      { status: 429 }
+    );
+  }
+
   try {
-    const { domain, walletAddress } = await request.json();
+    const { domain, walletAddress, email } = await request.json();
 
     if (!domain || !walletAddress) {
       return NextResponse.json(
@@ -39,6 +49,11 @@ export async function POST(request: Request) {
         url: `${BASE_URL}/claim?session_id=${mockSessionId}`,
       });
     }
+
+    const validEmail =
+      typeof email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ? email
+        : undefined;
 
     // Server-side price verification — don't trust the client
     const api = new FreenameAPI();
@@ -78,6 +93,7 @@ export async function POST(request: Request) {
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      ...(validEmail ? { customer_email: validEmail } : {}),
       line_items: [
         {
           price_data: {
@@ -95,6 +111,7 @@ export async function POST(request: Request) {
         domain: fullDomain,
         walletAddress,
         fulfillment_status: "pending",
+        ...(validEmail ? { email: validEmail } : {}),
       },
       success_url: `${BASE_URL}/claim?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${BASE_URL}/claim?name=${encodeURIComponent(fullDomain.replace(/\.agt$/, ""))}&cancelled=true`,

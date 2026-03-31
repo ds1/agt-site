@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const FREENAME_RESOLVER = "https://apis.freename.io/api/v1/resolver/FNS";
 
@@ -110,6 +111,15 @@ async function fetchManifest(domain: string): Promise<AgentManifest | null> {
 }
 
 export async function GET(request: Request) {
+  const ip = getClientIp(request);
+  const { ok } = rateLimit(`agents:${ip}`, 20);
+  if (!ok) {
+    return NextResponse.json(
+      { success: false, error: "Too many requests. Please try again shortly." },
+      { status: 429 }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const capability = searchParams.get("capability");
   const protocol = searchParams.get("protocol");

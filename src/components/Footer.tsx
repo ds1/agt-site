@@ -5,12 +5,13 @@ export default function Footer() {
     <footer className={styles.footer}>
       <span>.agt — the agent namespace</span>
       <div className={styles.links}>
+        <a href="mailto:support@agtnames.com">Support</a>
         <a href="https://x.com/agtnames" target="_blank" rel="noopener noreferrer">
           @agtnames
         </a>
-        <a href="/docs" target="_blank">
-          Docs
-        </a>
+        <a href="/docs">Docs</a>
+        <a href="/terms">Terms</a>
+        <a href="/privacy">Privacy</a>
       </div>
     </footer>
   );

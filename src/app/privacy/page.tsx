@@ -48,8 +48,17 @@ export default function PrivacyPage() {
           <ul>
             <li>
               <strong>Usage data</strong> — pages visited, search queries,
-              timestamps. We use privacy-respecting analytics that do not track
-              individuals across sites.
+              timestamps, and general interaction data collected via Google
+              Analytics. Google may use cookies to distinguish unique users and
+              collect demographic and interest data. See{" "}
+              <a
+                href="https://policies.google.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Google&apos;s Privacy Policy
+              </a>{" "}
+              for details.
             </li>
             <li>
               <strong>IP address</strong> — used transiently for rate limiting.
@@ -106,6 +115,10 @@ export default function PrivacyPage() {
           <p>We do not sell your personal data. We share data only with:</p>
           <ul>
             <li>
+              <strong>Google Analytics</strong> — for anonymized usage analytics
+              and site improvement.
+            </li>
+            <li>
               <strong>Stripe</strong> — for payment processing.
             </li>
             <li>
@@ -140,9 +153,18 @@ export default function PrivacyPage() {
         <section>
           <h2>7. Cookies</h2>
           <p>
-            We do not use tracking cookies. We may use essential cookies
-            required for the Service to function (e.g., Stripe checkout
-            sessions).
+            We use cookies set by Google Analytics to measure site usage and
+            improve the Service. We also use essential cookies required for the
+            Service to function (e.g., Stripe checkout sessions). You can
+            opt out of Google Analytics by installing the{" "}
+            <a
+              href="https://tools.google.com/dlpage/gaoptout"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Google Analytics Opt-out Browser Add-on
+            </a>
+            .
           </p>
         </section>
 

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import AgentConfigForm from "./AgentConfigForm";
 import styles from "./ClaimContent.module.css";
 
-type Step = "search" | "payment" | "fulfilling" | "minting" | "done" | "configure";
+type Step = "search" | "payment" | "fulfilling" | "minting" | "done" | "configure" | "failed";
 
 interface SearchResult {
   name: string;
@@ -147,11 +147,7 @@ export default function ClaimContent() {
           startMintingPolling(data.domain);
         } else if (data.fulfillment_status === "failed") {
           clearInterval(pollRef.current!);
-          setError(
-            data.error ||
-              "Registration failed after payment. Your payment will be refunded. Please contact support if needed."
-          );
-          setStep("search");
+          setStep("failed");
         }
       } catch {
         // Silently retry
@@ -159,8 +155,7 @@ export default function ClaimContent() {
 
       if (attempts >= maxAttempts) {
         clearInterval(pollRef.current!);
-        setError("Registration is taking longer than expected. Please contact support.");
-        setStep("search");
+        setStep("failed");
       }
     }, 3000);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -264,6 +259,8 @@ export default function ClaimContent() {
           <form onSubmit={handleSearch} className={styles.searchForm}>
             <div className={styles.searchBox}>
               <input
+                id="domain-search"
+                name="domainSearch"
                 type="text"
                 className={styles.searchInput}
                 placeholder="youragent"
@@ -314,8 +311,10 @@ export default function ClaimContent() {
                   </span>
 
                   <div className={styles.walletField}>
-                    <label className={styles.walletLabel}>Wallet address</label>
+                    <label htmlFor="wallet-address" className={styles.walletLabel}>Wallet address</label>
                     <input
+                      id="wallet-address"
+                      name="walletAddress"
                       type="text"
                       className={styles.walletInput}
                       placeholder="0x..."
@@ -330,8 +329,10 @@ export default function ClaimContent() {
                   </div>
 
                   <div className={styles.walletField}>
-                    <label className={styles.walletLabel}>Email (optional)</label>
+                    <label htmlFor="email-address" className={styles.walletLabel}>Email (optional)</label>
                     <input
+                      id="email-address"
+                      name="email"
                       type="email"
                       className={styles.walletInput}
                       placeholder="you@example.com"
@@ -417,6 +418,39 @@ export default function ClaimContent() {
               Status: {mintStatus}. This may take a few minutes.
             </span>
           </div>
+        </div>
+      )}
+
+      {/* Failed — registration or minting failed after payment */}
+      {step === "failed" && (
+        <div className={styles.failedCard}>
+          <div className={styles.failedIcon}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <h2 className={styles.failedTitle}>Registration could not be completed</h2>
+          <p className={styles.failedText}>
+            Your payment was received but we were unable to complete the domain registration.
+            A refund has been initiated automatically and should appear within 5–10 business days.
+          </p>
+          <p className={styles.failedText}>
+            If you have questions, contact{" "}
+            <a href="mailto:support@agtnames.com" className={styles.failedLink}>support@agtnames.com</a>
+            {domain && <> and reference <strong>{domain}</strong></>}.
+          </p>
+          <button
+            className={styles.claimBtn}
+            onClick={() => {
+              setStep("search");
+              setError(null);
+              setResult(null);
+            }}
+          >
+            Try again
+          </button>
         </div>
       )}
 

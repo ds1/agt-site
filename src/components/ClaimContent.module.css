@@ -277,6 +277,35 @@
   line-height: 1.4;
 }
 
+/* Failed card */
+.failedCard {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+.failedIcon {
+  color: var(--error, #ef4444);
+  margin-bottom: 1rem;
+}
+.failedTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.failedText {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+.failedLink {
+  color: var(--purple-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.failedCard .claimBtn {
+  margin-top: 1rem;
+}
+
 /* Progress card (claiming / minting) */
 .progressCard {
   display: flex;

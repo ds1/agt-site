@@ -26,6 +26,7 @@ export default function ClaimContent() {
   const [step, setStep] = useState<Step>("search");
   const [wallet, setWallet] = useState("");
   const [email, setEmail] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [zoneUuid, setZoneUuid] = useState<string | null>(null);
   const [domain, setDomain] = useState("");
   const [mintStatus, setMintStatus] = useState("PENDING");
@@ -87,7 +88,7 @@ export default function ClaimContent() {
 
   // Claim — redirect to Stripe Checkout
   const handleClaim = async () => {
-    if (!result?.available || !wallet) return;
+    if (!result?.available || !wallet || !termsAccepted) return;
     if (!/^0x[a-fA-F0-9]{40}$/.test(wallet)) {
       setError("Invalid wallet address. Must be 0x followed by 40 hex characters.");
       return;
@@ -104,6 +105,7 @@ export default function ClaimContent() {
           domain: result.fullDomain,
           walletAddress: wallet,
           email: email || undefined,
+          termsAccepted: true,
         }),
       });
 
@@ -342,10 +344,28 @@ export default function ClaimContent() {
                     </span>
                   </div>
 
+                  <label className={styles.termsCheckbox}>
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                    />
+                    <span>
+                      I agree to the{" "}
+                      <a href="/terms" target="_blank" rel="noopener noreferrer">
+                        Terms of Service
+                      </a>{" "}
+                      and{" "}
+                      <a href="/privacy" target="_blank" rel="noopener noreferrer">
+                        Privacy Policy
+                      </a>
+                    </span>
+                  </label>
+
                   <button
                     className={styles.claimBtn}
                     onClick={handleClaim}
-                    disabled={!walletValid}
+                    disabled={!walletValid || !termsAccepted}
                   >
                     Claim this name
                   </button>

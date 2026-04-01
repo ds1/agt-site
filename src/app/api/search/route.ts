@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import FreenameAPI from "@/lib/freename-api";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { calculatePrice } from "@/lib/pricing";
 
 const MOCK = process.env.MOCK_FREENAME === "true";
 
@@ -48,13 +49,15 @@ export async function GET(request: Request) {
   if (MOCK) {
     const taken = ["test", "hello", "agent"];
     const isTaken = taken.includes(name);
+    const mockBase = 9.99;
+    const mockPricing = isTaken ? null : calculatePrice(mockBase, "USD");
     return NextResponse.json({
       success: true,
       name,
       fullDomain,
       status: isTaken ? "unavailable" : "available",
       available: !isTaken,
-      price: isTaken ? null : { currency: "USD", amount: 9.99 },
+      price: mockPricing ? { currency: mockPricing.currency, amount: mockPricing.amount } : null,
     });
   }
 
@@ -79,9 +82,13 @@ export async function GET(request: Request) {
           status = "available";
           const priceSource = element.domainPrice || element.price;
           if (priceSource?.amount) {
+            const pricing = calculatePrice(
+              priceSource.amount,
+              priceSource.currency || "USD"
+            );
             price = {
-              currency: priceSource.currency || "USD",
-              amount: priceSource.amount,
+              currency: pricing.currency,
+              amount: pricing.amount,
             };
           }
         } else if (apiStatus === "PROTECTED") {

@@ -3,6 +3,7 @@ import stripe from "@/lib/stripe";
 import FreenameAPI from "@/lib/freename-api";
 import { randomUUID } from "crypto";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { calculatePrice } from "@/lib/pricing";
 
 const MOCK = process.env.MOCK_FREENAME === "true";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
@@ -22,11 +23,18 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { domain, walletAddress, email } = await request.json();
+    const { domain, walletAddress, email, termsAccepted } = await request.json();
 
     if (!domain || !walletAddress) {
       return NextResponse.json(
         { success: false, error: "Domain and wallet address are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!termsAccepted) {
+      return NextResponse.json(
+        { success: false, error: "You must accept the Terms of Service to continue" },
         { status: 400 }
       );
     }
@@ -60,8 +68,8 @@ export async function POST(request: Request) {
     const searchResult = await api.searchDomains(fullDomain);
     const resultData = searchResult?.data || searchResult;
 
-    let priceAmount = 0;
-    let priceCurrency = "usd";
+    let freenameBasePrice = 0;
+    let baseCurrency = "usd";
 
     if (resultData?.result) {
       const exactMatch = resultData.result.find(
@@ -77,31 +85,39 @@ export async function POST(request: Request) {
         }
         const priceSource = element.domainPrice || element.price;
         if (priceSource?.amount) {
-          priceAmount = priceSource.amount;
-          priceCurrency = (priceSource.currency || "USD").toLowerCase();
+          freenameBasePrice = priceSource.amount;
+          baseCurrency = (priceSource.currency || "USD").toLowerCase();
         }
       }
     }
 
-    if (priceAmount <= 0) {
+    if (freenameBasePrice <= 0) {
       return NextResponse.json(
         { success: false, error: "Could not determine price" },
         { status: 500 }
       );
     }
 
+    // Apply pricing strategy (markup on Freename base price)
+    const pricing = calculatePrice(freenameBasePrice, baseCurrency);
+
+    // Enable Stripe Tax if configured (set STRIPE_TAX_ENABLED=true in env)
+    const taxEnabled = process.env.STRIPE_TAX_ENABLED === "true";
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       ...(validEmail ? { customer_email: validEmail } : {}),
+      ...(taxEnabled ? { automatic_tax: { enabled: true } } : {}),
       line_items: [
         {
           price_data: {
-            currency: priceCurrency,
-            unit_amount: Math.round(priceAmount * 100), // Stripe uses cents
+            currency: pricing.currency,
+            unit_amount: pricing.amountCents,
             product_data: {
               name: fullDomain,
               description: `.agt agent name — minted as NFT on Polygon`,
+              ...(taxEnabled ? { tax_code: "txcd_10000000" } : {}), // General digital goods
             },
           },
           quantity: 1,
@@ -111,6 +127,9 @@ export async function POST(request: Request) {
         domain: fullDomain,
         walletAddress,
         fulfillment_status: "pending",
+        freename_base_price: String(freenameBasePrice),
+        customer_price: String(pricing.amount),
+        markup_percent: String(pricing.markup),
         ...(validEmail ? { email: validEmail } : {}),
       },
       success_url: `${BASE_URL}/claim?session_id={CHECKOUT_SESSION_ID}`,

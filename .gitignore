@@ -38,6 +38,8 @@ yarn-error.log*
 
 # internal
 example-domains.md
+_internal/
+.data/
 
 # typescript
 *.tsbuildinfo

@@ -222,6 +222,32 @@
   color: var(--text-tertiary);
 }
 
+/* Terms checkbox */
+.termsCheckbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  line-height: 1.4;
+}
+.termsCheckbox input[type="checkbox"] {
+  margin-top: 0.15rem;
+  accent-color: var(--purple-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.termsCheckbox a {
+  color: var(--purple-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.termsCheckbox a:hover {
+  color: var(--purple-muted);
+}
+
 /* Claim button */
 .claimBtn {
   display: inline-block;

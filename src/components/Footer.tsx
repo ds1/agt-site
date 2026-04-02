@@ -12,6 +12,7 @@ export default function Footer() {
         <a href="/docs">Docs</a>
         <a href="/terms">Terms</a>
         <a href="/privacy">Privacy</a>
+        <a href="/refund">Refunds</a>
       </div>
     </footer>
   );

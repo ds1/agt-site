@@ -182,23 +182,42 @@ async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
 
 async function handleDisputeCreated(dispute: Stripe.Dispute) {
   const charge = typeof dispute.charge === "string" ? dispute.charge : dispute.charge?.id;
+  const piId =
+    typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id;
+
+  // Structured alert — tagged for log-based alerting (Vercel, Datadog, etc.)
   console.error(
-    `[Stripe] DISPUTE CREATED — amount: ${dispute.amount} ${dispute.currency}, reason: ${dispute.reason}, charge: ${charge}`
+    JSON.stringify({
+      alert: "DISPUTE_CREATED",
+      severity: "critical",
+      disputeId: dispute.id,
+      chargeId: charge,
+      paymentIntentId: piId,
+      amount: dispute.amount,
+      currency: dispute.currency,
+      reason: dispute.reason,
+      status: dispute.status,
+      evidenceDueBy: dispute.evidence_details?.due_by
+        ? new Date(dispute.evidence_details.due_by * 1000).toISOString()
+        : null,
+      message: `CHARGEBACK ALERT: ${dispute.amount} ${dispute.currency} dispute (${dispute.reason}) — evidence due ${
+        dispute.evidence_details?.due_by
+          ? new Date(dispute.evidence_details.due_by * 1000).toISOString()
+          : "unknown"
+      }. Review at https://dashboard.stripe.com/disputes/${dispute.id}`,
+    })
   );
 
   await recordTransaction({
     type: "dispute_created",
     timestamp: new Date().toISOString(),
     stripeDisputeId: dispute.id,
-    stripePaymentIntentId:
-      typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id,
+    stripePaymentIntentId: piId,
     grossAmount: dispute.amount,
     currency: dispute.currency,
     reason: dispute.reason ?? undefined,
     disputeStatus: dispute.status,
   });
-
-  // Future: send alert email to ops (#82)
 }
 
 // -----------------------------------------------------------------------------

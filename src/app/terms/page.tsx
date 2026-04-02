@@ -85,6 +85,10 @@ export default function TermsPage() {
               been minted to your wallet.
             </li>
           </ul>
+          <p>
+            For full details, see our{" "}
+            <a href="/refund">Refund Policy</a>.
+          </p>
         </section>
 
         <section>

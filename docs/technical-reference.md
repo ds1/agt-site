@@ -16,6 +16,10 @@ Comprehensive documentation covering strategy, architecture, manifest specificat
 6. [Registration Site — agt-site](#6-registration-site--agt-site)
 7. [Resolver SDK — @agt/resolver](#7-resolver-sdk--agtresolver)
 8. [Freename Reseller API Integration](#8-freename-reseller-api-integration)
+   - 8a. [Revenue Tracking & Reconciliation](#8a-revenue-tracking--reconciliation)
+   - 8b. [Stripe Webhook & Dispute Monitoring](#8b-stripe-webhook--dispute-monitoring)
+   - 8c. [Structured Logging](#8c-structured-logging-srclibloggerts)
+   - 8d. [GA4 Analytics](#8d-ga4-analytics-srclibanalyticsts)
 9. [User Flows](#9-user-flows)
 10. [Design System](#10-design-system)
 11. [Data Model](#11-data-model)
@@ -116,6 +120,7 @@ Each TXT record value follows `agt-{field}={value}`.
 | `agt-name={name}` | Display name. Max 100 characters. |
 | `agt-description={text}` | One-line description. Max 200 characters. |
 | `agt-icon={url}` | Icon image URL (PNG, SVG, JPG). Recommended 128x128+. |
+| `agt-website={url}` | Agent homepage URL. Full HTTPS URL. |
 | `agt-owner={address}` | Owner wallet address (e.g., `0x1234...abcd`). |
 
 #### Capabilities
@@ -164,11 +169,24 @@ Priority order:
 | `ws` | WebSocket | Real-time bidirectional |
 | `grpc` | gRPC | High-performance RPC |
 
-### Capability Vocabulary (20 starter)
+### Capability Vocabulary (69 registered, 8 categories)
 
-`research`, `summarization`, `translation`, `code-generation`, `code-review`, `data-analysis`, `image-generation`, `image-analysis`, `audio-transcription`, `web-scraping`, `api-integration`, `workflow-automation`, `scheduling`, `monitoring`, `content-writing`, `chat`, `reasoning`, `math`, `search`, `embedding`
+Canonical source: `src/lib/agent-capabilities.ts`. Categories are organizational — only IDs appear in `agt-cap=` records.
 
-Custom IDs allowed (lowercase, hyphen-separated).
+| Category | Capabilities |
+|----------|-------------|
+| **Language** (13) | research, summarization, translation, content-writing, copywriting, editing, paraphrasing, extraction, classification, question-answering, fact-checking, reasoning, brainstorming |
+| **Code** (9) | code-generation, code-review, code-explanation, debugging, testing, refactoring, code-documentation, database-query, code-completion |
+| **Data** (11) | data-analysis, data-visualization, data-cleaning, data-transformation, math, forecasting, anomaly-detection, reporting, embedding, clustering, ranking |
+| **Search & Retrieval** (5) | web-search, semantic-search, document-search, knowledge-retrieval, citation |
+| **Media** (10) | image-generation, image-editing, image-analysis, video-generation, video-analysis, audio-transcription, audio-generation, ocr, design, 3d-modeling |
+| **Communication** (7) | chat, email-drafting, meeting-notes, presentation, tutoring, customer-support, negotiation |
+| **Automation** (9) | web-scraping, api-integration, workflow-automation, scheduling, monitoring, deployment, file-management, notification, data-entry |
+| **Security** (5) | vulnerability-scanning, compliance-checking, threat-detection, access-control, encryption |
+
+Every capability has an ID, label, description, and category. See the full registry with descriptions at `/spec` or in `spec/agt-manifest-v0.1.0.md`.
+
+Helper functions exported from `agent-capabilities.ts`: `getCapabilityLabel(id)`, `getCapabilityDescription(id)`, `searchCapabilities(query)`, `getCapabilitiesGrouped()`, `isKnownCapability(id)`. Custom IDs are supported and auto-formatted for display (e.g., `my-custom-cap` → "My Custom Cap").
 
 ### Verification
 
@@ -185,6 +203,7 @@ agt-version=1
 agt-name=Research Agent
 agt-description=Deep research and source citation
 agt-icon=https://researcher.example.com/icon.png
+agt-website=https://researcher.example.com
 agt-protocol=mcp
 agt-protocol=http
 agt-cap=research
@@ -332,18 +351,27 @@ Domains without `agt-version=1` sentinel fall through to normal content resoluti
 | Route | Purpose |
 |-------|---------|
 | `/` | Landing page — search hero, manifest preview, steps, SDK code block |
-| `/claim` | Full claim flow — search → availability → wallet → claim → mint → configure → done |
-| `/explore` | Agent directory — search, filter by protocol/capability, agent card grid |
+| `/claim` | Full claim flow — search → availability → wallet → checkout → fulfillment → configure → done |
+| `/explore` | Agent directory — search, filter by protocol/capability (grouped by category), agent card grid |
+| `/spec` | Standalone manifest spec v0.1.0 — rendered from registry, links to raw markdown |
+| `/refund` | Refund policy — auto-refunds, non-refundable scenarios, how to request |
+| `/terms` | Terms of Service (cross-links to refund policy) |
+| `/privacy` | Privacy Policy |
+| `/docs/*` | Documentation — 7 pages with sidebar nav |
 
 ### API Routes
 
 | Route | Method | Purpose |
 |-------|--------|---------|
 | `/api/search` | GET | Check name availability + pricing via Freename |
-| `/api/claim` | POST | Create zone, trigger minting, set sentinel record |
-| `/api/claim/status` | GET | Poll minting status |
+| `/api/checkout` | POST | Create Stripe Checkout session with server-side price verification |
+| `/api/checkout/status` | GET | Poll fulfillment status after Stripe payment |
+| `/api/claim` | POST | Create zone, trigger minting, set sentinel record (disabled — use checkout) |
+| `/api/claim/status` | GET | Poll minting status on Polygon |
 | `/api/agent-config` | POST | Set agt-* TXT records from structured config |
-| `/api/agents` | GET | Fetch agent manifests from seed domain list |
+| `/api/agents` | GET | Fetch agent manifests from seed domain list. Filters: `capability`, `protocol`, `q` |
+| `/api/webhooks/stripe` | POST | Stripe webhook — handles 6 events (checkout, disputes, refunds) |
+| `/api/admin/revenue` | GET | Revenue reporting (Bearer token auth). Params: `month`, `detail`, `months=all` |
 
 ### Components
 
@@ -375,8 +403,15 @@ done:       Summary card — domain claimed, config status, next actions
 
 | File | Purpose |
 |------|---------|
-| `src/lib/freename-api.ts` | Freename Reseller API client with Auth0 token management |
-| `src/lib/agent-capabilities.ts` | Vocabulary data: CAPABILITIES (20), PROTOCOLS (5), PRICING_OPTIONS (4) |
+| `src/lib/freename-api.ts` | Freename Reseller API client — Auth0 tokens, global rate limiting (30 req/min), 45s search cache, 15s timeouts |
+| `src/lib/agent-capabilities.ts` | Capability registry — 69 capabilities across 8 categories with descriptions, search, and helper functions |
+| `src/lib/stripe.ts` | Stripe client initialization |
+| `src/lib/pricing.ts` | Pricing engine — 40% markup on Freename base prices, $9.99 floor |
+| `src/lib/revenue.ts` | Revenue tracking — JSONL ledger, monthly summaries, 65/35 split calculation |
+| `src/lib/fulfillment.ts` | Domain fulfillment — zone creation, minting trigger, sentinel record |
+| `src/lib/rate-limit.ts` | In-memory rate limiter — per-IP sliding window |
+| `src/lib/logger.ts` | Structured JSON logger — severity levels (info/warn/error/critical), timestamps |
+| `src/lib/analytics.ts` | GA4 event helper — typed events for search, checkout, registration, config |
 
 ---
 
@@ -463,6 +498,17 @@ Token is cached at module level in `freename-api.ts` with 60-second buffer. Auto
 - The reseller must not delegate API credentials.
 - Rate limits are agreed per contract. Some endpoints are quota-limited.
 
+### Resilience (implemented in `freename-api.ts`)
+
+| Feature | Implementation |
+|---------|---------------|
+| **Global rate limiting** | 30 requests/minute across all users. Returns `FreenameRateLimitError`. |
+| **Search caching** | 45-second TTL. Same search string returns cached result. Auto-evicts expired entries. |
+| **Request timeout** | 15-second default via `AbortController`. Returns `FreenameTimeoutError`. |
+| **429 handling** | Freename 429 responses caught and surfaced as user-friendly errors. |
+| **Request timing** | Every API call logged with endpoint, status code, and elapsed milliseconds. |
+| **Error sanitization** | Internal Freename errors are not exposed to end users. API routes return generic messages. |
+
 ### Key Endpoints
 
 All under `POST/GET https://apis.freename.io/api/v1/reseller-logic/`
@@ -520,6 +566,111 @@ Ethereum, BSC, Polygon (default for .agt), Base, Solana.
 ### Billing
 
 Gas fees are covered by Freename and invoiced to the reseller. No real-time payment required for zone creation or minting.
+
+---
+
+## 8a. Revenue Tracking & Reconciliation
+
+### Storage
+
+Revenue records are stored as JSONL (one JSON object per line) in `.data/revenue/<YYYY-MM>.jsonl`. Auto-creates monthly files.
+
+### Record Types
+
+| Type | When | Fields |
+|------|------|--------|
+| `sale` | `checkout.session.completed` | session ID, payment intent, domain, wallet, gross, Stripe fee, net, Freename share (65%), AGT share (35%) |
+| `refund` | `charge.refunded` | payment intent, domain, amount |
+| `dispute_created` | `charge.dispute.created` | dispute ID, payment intent, amount, reason, status |
+| `dispute_closed` | `charge.dispute.closed` | dispute ID, outcome (won/lost), amount |
+
+### Admin API (`/api/admin/revenue`)
+
+Protected by `ADMIN_API_KEY` Bearer token.
+
+| Request | Response |
+|---------|----------|
+| `GET /api/admin/revenue` | Current month summary (gross, fees, net, Freename owed, AGT retained) |
+| `GET ?month=2026-03` | Specific month summary |
+| `GET ?month=2026-03&detail=true` | All records for the month |
+| `GET ?months=all` | List all months with data |
+
+### Revenue Split
+
+65% Freename / 35% AGT of net revenue (gross minus Stripe fees). Due by 10th of the following month. See `_internal/reseller-agreement-constraints.md` for details.
+
+---
+
+## 8b. Stripe Webhook & Dispute Monitoring
+
+### Webhook Events
+
+The webhook handler (`/api/webhooks/stripe`) processes 6 event types:
+
+| Event | Action |
+|-------|--------|
+| `checkout.session.completed` | Fulfill domain (zone creation, minting), record sale, auto-refund on failure |
+| `checkout.session.expired` | Log abandoned checkout |
+| `charge.dispute.created` | Record dispute, emit critical alert with evidence deadline and Stripe dashboard link |
+| `charge.dispute.updated` | Log status change |
+| `charge.dispute.closed` | Record outcome (won/lost) |
+| `charge.refunded` | Record refund amount and domain |
+
+### Dispute Alerting
+
+Disputes emit structured JSON logs with `severity: "critical"` including:
+- Dispute ID, amount, reason, status
+- Evidence deadline (from `evidence_details.due_by`)
+- Direct link to Stripe Dashboard dispute page
+
+See `_internal/dispute-response-runbook.md` for evidence gathering and submission process.
+
+---
+
+## 8c. Structured Logging (`src/lib/logger.ts`)
+
+All server-side code uses a structured JSON logger. Each log line is a single JSON object with `timestamp`, `severity`, and `event` fields — compatible with Vercel log drain, Datadog, Sentry, etc.
+
+### Severity Levels
+
+| Level | Usage |
+|-------|-------|
+| `info` | Normal operations (fulfillment complete, refund issued, API timing) |
+| `warn` | Degraded state (balance transaction fetch failed, token refresh failed) |
+| `error` | Failures (signature invalid, missing metadata) |
+| `critical` | Requires immediate attention (fulfillment failed, auto-refund failed, dispute created) |
+
+### Key Events
+
+| Event | Severity | Meaning |
+|-------|----------|---------|
+| `webhook.fulfilling` | info | Starting domain fulfillment |
+| `webhook.fulfilled` | info | Domain registered successfully |
+| `webhook.fulfillment_failed` | critical | Registration failed after payment — auto-refund triggered |
+| `webhook.fulfillment_crash` | critical | Unexpected error during fulfillment |
+| `webhook.auto_refund_failed` | critical | Refund could not be issued |
+| `webhook.dispute_created` | critical | Chargeback filed |
+| `fulfillment.zone_failed` | critical | Freename zone creation failed |
+
+---
+
+## 8d. GA4 Analytics (`src/lib/analytics.ts`)
+
+Client-side event tracking via the global `gtag()` function. No-ops if GA is not loaded.
+
+### Events
+
+| Event | When | Parameters |
+|-------|------|-----------|
+| `domain_search` | User searches for a name | `search_term` |
+| `search_result` | Result returned | `domain`, `availability` |
+| `begin_checkout` | "Claim this name" clicked | `domain`, `value`, `currency` |
+| `purchase` | Return from Stripe | `domain` |
+| `checkout_cancelled` | User cancels checkout | `domain` |
+| `registration_complete` | Fulfillment succeeded | `domain` |
+| `registration_failed` | Fulfillment failed | `domain` |
+| `agent_config_saved` | Config saved | `domain`, `record_count` |
+| `agent_config_skipped` | Config skipped | `domain` |
 
 ---
 

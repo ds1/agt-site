@@ -193,6 +193,133 @@ POST /api/v1/auth/refresh
         pricing is set by Freename — the TLD owner has limited control over
         pricing and cannot offer free registrations.
       </p>
+
+      <h2>agt-site Internal API Routes</h2>
+      <p>
+        The registration site exposes its own API routes for the claim flow,
+        agent directory, and administration.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Route</th>
+            <th>Method</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/api/search</code></td>
+            <td>GET</td>
+            <td>
+              Check name availability and pricing. Params: <code>name</code>.
+              Applies 40% markup on Freename base price. Rate limited (30
+              req/IP/min). Results cached for 45 seconds.
+            </td>
+          </tr>
+          <tr>
+            <td><code>/api/checkout</code></td>
+            <td>POST</td>
+            <td>
+              Create a Stripe Checkout session. Server-side price verification
+              against Freename API. Body:{" "}
+              <code>
+                &#123; domain, walletAddress, email?, termsAccepted &#125;
+              </code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>/api/checkout/status</code></td>
+            <td>GET</td>
+            <td>
+              Poll fulfillment status after payment. Params:{" "}
+              <code>session_id</code>. Returns fulfillment status, domain,
+              wallet, and zone UUID.
+            </td>
+          </tr>
+          <tr>
+            <td><code>/api/claim/status</code></td>
+            <td>GET</td>
+            <td>
+              Poll minting status on Polygon. Params: <code>domain</code>.
+              Returns status (PENDING/IN_PROGRESS/COMPLETE/FAILED),
+              transaction hash, token ID, and contract address.
+            </td>
+          </tr>
+          <tr>
+            <td><code>/api/agent-config</code></td>
+            <td>POST</td>
+            <td>
+              Set agent configuration (agt-* TXT records). Body:{" "}
+              <code>
+                &#123; zoneUuid, config: &#123; name, description, icon,
+                website, protocols, capabilities, endpoints, pricing &#125;
+                &#125;
+              </code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>/api/agents</code></td>
+            <td>GET</td>
+            <td>
+              Fetch agent manifests from the seed domain list. Filters:{" "}
+              <code>capability</code>, <code>protocol</code>,{" "}
+              <code>q</code> (text search).
+            </td>
+          </tr>
+          <tr>
+            <td><code>/api/webhooks/stripe</code></td>
+            <td>POST</td>
+            <td>
+              Stripe webhook endpoint. Handles 6 event types: checkout
+              completed/expired, dispute created/updated/closed, charge
+              refunded. Auto-refunds on fulfillment failure.
+            </td>
+          </tr>
+          <tr>
+            <td><code>/api/admin/revenue</code></td>
+            <td>GET</td>
+            <td>
+              Revenue reporting for Freename reconciliation. Requires{" "}
+              <code>Authorization: Bearer &#123;ADMIN_API_KEY&#125;</code>.
+              Params: <code>month</code>, <code>detail</code>,{" "}
+              <code>months=all</code>.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Freename API Resilience</h2>
+      <p>
+        The Freename API client (<code>src/lib/freename-api.ts</code>)
+        implements several resilience features:
+      </p>
+      <ul>
+        <li>
+          <strong>Global rate limiting</strong> — 30 requests/minute across
+          all users to comply with fair use (Section 4.6).
+        </li>
+        <li>
+          <strong>Search caching</strong> — 45-second TTL to reduce redundant
+          API calls for the same domain.
+        </li>
+        <li>
+          <strong>Request timeouts</strong> — 15-second default via
+          AbortController. No uptime SLA from Freename (Section 4.1).
+        </li>
+        <li>
+          <strong>429 handling</strong> — Rate limit responses surfaced as
+          user-friendly errors.
+        </li>
+        <li>
+          <strong>Error sanitization</strong> — Internal Freename errors are
+          never exposed to end users.
+        </li>
+        <li>
+          <strong>Request timing</strong> — Every call logged with endpoint,
+          status, and elapsed milliseconds.
+        </li>
+      </ul>
     </article>
   );
 }

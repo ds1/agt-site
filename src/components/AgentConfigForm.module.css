@@ -65,6 +65,40 @@
   color: var(--text-tertiary);
 }
 
+.iconPreviewRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.iconPreviewRow .input {
+  flex: 1;
+}
+
+.iconPreview {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  border: 1px solid var(--purple-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.iconPreview img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+}
+
+.iconError {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--error);
+  margin-top: 0.25rem;
+}
+
 .textarea {
   width: 100%;
   padding: 0.625rem 0.75rem;

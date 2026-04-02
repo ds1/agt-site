@@ -38,6 +38,7 @@ interface AgentManifest {
   name: string | null;
   description: string | null;
   icon: string | null;
+  website: string | null;
   protocols: string[];
   capabilities: string[];
   endpoints: { protocol: string; url: string }[];
@@ -59,6 +60,7 @@ function parseManifest(
     name: null,
     description: null,
     icon: null,
+    website: null,
     protocols: [],
     capabilities: [],
     endpoints: [],
@@ -75,6 +77,7 @@ function parseManifest(
     else if (v.startsWith("agt-name=")) m.name = v.slice(9);
     else if (v.startsWith("agt-description=")) m.description = v.slice(16);
     else if (v.startsWith("agt-icon=")) m.icon = v.slice(9);
+    else if (v.startsWith("agt-website=")) m.website = v.slice(12);
     else if (v.startsWith("agt-protocol=")) {
       const p = v.slice(13);
       if (p) m.protocols.push(p);

@@ -107,3 +107,12 @@
 .endpoints {
   font-family: var(--font-mono);
 }
+
+.websiteLink {
+  color: var(--purple-accent);
+  text-decoration: none;
+  font-family: var(--font-mono);
+}
+.websiteLink:hover {
+  color: var(--text-primary);
+}

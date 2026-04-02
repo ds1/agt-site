@@ -17,6 +17,7 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
     name: "",
     description: "",
     icon: "",
+    website: "",
     protocols: [] as string[],
     capabilities: [] as string[],
     endpoints: {} as Record<string, string>,
@@ -25,6 +26,7 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [iconError, setIconError] = useState(false);
 
   const toggleProtocol = (id: string) => {
     setForm((prev) => {
@@ -66,6 +68,7 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
         name: form.name || null,
         description: form.description || null,
         icon: form.icon || null,
+        website: form.website || null,
         protocols: form.protocols,
         capabilities: form.capabilities,
         endpoints: form.protocols
@@ -88,6 +91,7 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
       if (config.name) records.push(`agt-name=${config.name}`);
       if (config.description) records.push(`agt-description=${config.description}`);
       if (config.icon) records.push(`agt-icon=${config.icon}`);
+      if (config.website) records.push(`agt-website=${config.website}`);
       if (config.protocols) config.protocols.forEach(p => records.push(`agt-protocol=${p}`));
       if (config.capabilities) config.capabilities.forEach(c => records.push(`agt-cap=${c}`));
       if (config.endpoints) config.endpoints.forEach(e => records.push(`agt-endpoint-${e.protocol}=${e.url}`));
@@ -139,12 +143,52 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
 
       <div className={styles.field}>
         <label className={styles.label}>Icon URL</label>
+        <div className={styles.iconPreviewRow}>
+          <input
+            type="url"
+            className={styles.input}
+            placeholder="https://example.com/icon.png"
+            value={form.icon}
+            onChange={(e) => {
+              setForm((p) => ({ ...p, icon: e.target.value }));
+              setIconError(false);
+            }}
+          />
+          {form.icon && /^https?:\/\/.+/.test(form.icon) && (
+            <div className={styles.iconPreview}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={form.icon}
+                alt="Icon preview"
+                width={48}
+                height={48}
+                onError={() => setIconError(true)}
+                onLoad={() => setIconError(false)}
+                style={{ display: iconError ? "none" : "block" }}
+              />
+              {iconError && (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <line x1="9" y1="15" x2="9" y2="15.01" />
+                  <line x1="15" y1="15" x2="15" y2="15.01" />
+                </svg>
+              )}
+            </div>
+          )}
+        </div>
+        {iconError && form.icon && (
+          <span className={styles.iconError}>Could not load image</span>
+        )}
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>Website URL</label>
         <input
           type="url"
           className={styles.input}
-          placeholder="https://example.com/icon.png"
-          value={form.icon}
-          onChange={(e) => setForm((p) => ({ ...p, icon: e.target.value }))}
+          placeholder="https://your-agent-homepage.com"
+          value={form.website}
+          onChange={(e) => setForm((p) => ({ ...p, website: e.target.value }))}
         />
       </div>
 

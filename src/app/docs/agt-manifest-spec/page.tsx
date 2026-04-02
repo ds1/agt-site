@@ -72,6 +72,12 @@ export default function ManifestSpecPage() {
               </tr>
               <tr>
                 <td>
+                  <code>agt-website=&#123;url&#125;</code>
+                </td>
+                <td>Agent homepage URL. Full HTTPS URL.</td>
+              </tr>
+              <tr>
+                <td>
                   <code>agt-owner=&#123;address&#125;</code>
                 </td>
                 <td>
@@ -303,6 +309,7 @@ export default function ManifestSpecPage() {
 agt-name=Research Agent
 agt-description=Deep research and source citation
 agt-icon=https://researcher.example.com/icon.png
+agt-website=https://researcher.example.com
 agt-protocol=mcp
 agt-protocol=http
 agt-cap=research

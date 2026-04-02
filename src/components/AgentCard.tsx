@@ -7,6 +7,7 @@ export interface AgentManifest {
   name: string | null;
   description: string | null;
   icon: string | null;
+  website: string | null;
   protocols: string[];
   capabilities: string[];
   endpoints: { protocol: string; url: string }[];
@@ -50,7 +51,7 @@ export default function AgentCard({ agent }: { agent: AgentManifest }) {
         ))}
       </div>
 
-      {(agent.pricing || agent.endpoints.length > 0) && (
+      {(agent.pricing || agent.endpoints.length > 0 || agent.website) && (
         <div className={styles.footer}>
           {agent.pricing && (
             <span className={styles.pricing}>{agent.pricing}</span>
@@ -60,6 +61,16 @@ export default function AgentCard({ agent }: { agent: AgentManifest }) {
               {agent.endpoints.length} endpoint
               {agent.endpoints.length !== 1 ? "s" : ""}
             </span>
+          )}
+          {agent.website && (
+            <a
+              href={agent.website}
+              className={styles.websiteLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Website
+            </a>
           )}
         </div>
       )}

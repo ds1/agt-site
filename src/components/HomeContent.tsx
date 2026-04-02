@@ -61,6 +61,12 @@ export default function HomeContent() {
             </span>
           </div>
           <div className={styles.manifestLine}>
+            <span className={styles.mKey}>agt-website</span>
+            <span className={styles.mVal}>
+              https://researcher.example.com
+            </span>
+          </div>
+          <div className={styles.manifestLine}>
             <span className={styles.mKey}>agt-protocol</span>
             <span className={styles.mVal}>mcp</span>
           </div>

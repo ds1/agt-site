@@ -8,6 +8,7 @@ interface AgentConfig {
   name?: string;
   description?: string;
   icon?: string;
+  website?: string;
   protocols?: string[];
   capabilities?: string[];
   endpoints?: { protocol: string; url: string }[];
@@ -52,6 +53,9 @@ export async function POST(request: Request) {
     }
     if (config.icon) {
       records.push({ type: "TXT", name: "@", value: `agt-icon=${config.icon}`, ttl: 300 });
+    }
+    if (config.website) {
+      records.push({ type: "TXT", name: "@", value: `agt-website=${config.website}`, ttl: 300 });
     }
     if (config.protocols) {
       for (const proto of config.protocols) {

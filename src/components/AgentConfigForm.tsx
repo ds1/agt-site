@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CAPABILITIES, PROTOCOLS, PRICING_OPTIONS } from "@/lib/agent-capabilities";
+import { PROTOCOLS, PRICING_OPTIONS, getCapabilitiesGrouped, searchCapabilities } from "@/lib/agent-capabilities";
 import styles from "./AgentConfigForm.module.css";
 
 interface Props {
@@ -27,6 +27,7 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [iconError, setIconError] = useState(false);
+  const [capSearch, setCapSearch] = useState("");
 
   const toggleProtocol = (id: string) => {
     setForm((prev) => {
@@ -237,18 +238,41 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
 
       <div className={styles.field}>
         <label className={styles.label}>Capabilities</label>
-        <div className={styles.chips}>
-          {CAPABILITIES.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              className={`${styles.chip} ${form.capabilities.includes(c.id) ? styles.chipActive : ""}`}
-              onClick={() => toggleCap(c.id)}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
+        <input
+          type="text"
+          className={`${styles.input} ${styles.capSearch}`}
+          placeholder="Search capabilities..."
+          value={capSearch}
+          onChange={(e) => setCapSearch(e.target.value)}
+        />
+        {(() => {
+          const matchingIds = new Set(searchCapabilities(capSearch).map((c) => c.id));
+          const groups = getCapabilitiesGrouped();
+          return groups.map(({ category, capabilities }) => {
+            const visible = capabilities.filter(
+              (c) => matchingIds.has(c.id) || form.capabilities.includes(c.id)
+            );
+            if (visible.length === 0) return null;
+            return (
+              <div key={category.id} className={styles.capCategoryGroup}>
+                <span className={styles.capCategoryLabel}>{category.label}</span>
+                <div className={styles.chips}>
+                  {visible.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className={`${styles.chip} ${form.capabilities.includes(c.id) ? styles.chipActive : ""}`}
+                      onClick={() => toggleCap(c.id)}
+                      title={c.description}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          });
+        })()}
         <div className={styles.customCapRow}>
           <input
             type="text"

@@ -87,9 +87,118 @@ Custom protocol IDs MAY be used. They SHOULD be lowercase, hyphen-separated iden
 
 ## 5. Capability Vocabulary
 
-Starter capabilities for v0.1.0:
+69 registered capabilities across 8 categories. Categories are an organizational convenience — only capability IDs appear in `agt-cap=` records.
 
-`research`, `summarization`, `translation`, `code-generation`, `code-review`, `data-analysis`, `image-generation`, `image-analysis`, `audio-transcription`, `web-scraping`, `api-integration`, `workflow-automation`, `scheduling`, `monitoring`, `content-writing`, `chat`, `reasoning`, `math`, `search`, `embedding`
+> **Canonical source:** `src/lib/agent-capabilities.ts` in the [agt-site repository](https://github.com/ds1/agt-site).
+
+### Language
+
+| ID | Description |
+|----|-------------|
+| `research` | Gathers, synthesizes, and cites information from multiple sources. |
+| `summarization` | Condenses long-form content into concise summaries. |
+| `translation` | Translates text between natural languages. |
+| `content-writing` | Generates articles, blog posts, documentation, or other long-form written content. |
+| `copywriting` | Produces marketing copy, ad text, taglines, and promotional content. |
+| `editing` | Proofreads, corrects grammar, and improves style and clarity. |
+| `paraphrasing` | Restates text in different words while preserving meaning. |
+| `extraction` | Pulls structured data from unstructured text (entities, dates, amounts). |
+| `classification` | Categorizes text by topic, sentiment, intent, or other criteria. |
+| `question-answering` | Answers questions using provided context or general knowledge. |
+| `fact-checking` | Verifies claims against authoritative sources. |
+| `reasoning` | Performs multi-step logical reasoning and problem solving. |
+| `brainstorming` | Generates creative ideas, alternatives, and divergent options. |
+
+### Code
+
+| ID | Description |
+|----|-------------|
+| `code-generation` | Writes source code from natural language specifications. |
+| `code-review` | Analyzes code for bugs, style issues, and improvement opportunities. |
+| `code-explanation` | Explains what code does in plain language. |
+| `debugging` | Identifies and fixes software bugs. |
+| `testing` | Writes or executes tests and reports results. |
+| `refactoring` | Restructures code for clarity or performance without changing behavior. |
+| `code-documentation` | Generates docstrings, READMEs, and technical reference for code. |
+| `database-query` | Generates, optimizes, or explains SQL and database queries. |
+| `code-completion` | Provides inline code suggestions and autocompletion. |
+
+### Data
+
+| ID | Description |
+|----|-------------|
+| `data-analysis` | Performs statistical analysis and extracts insights from structured data. |
+| `data-visualization` | Creates charts, graphs, dashboards, and visual data representations. |
+| `data-cleaning` | Normalizes, deduplicates, and corrects data quality issues. |
+| `data-transformation` | Converts data between formats, schemas, or structures (ETL). |
+| `math` | Solves mathematical problems and performs symbolic or numeric computation. |
+| `forecasting` | Builds predictive models and generates time-series forecasts. |
+| `anomaly-detection` | Identifies outliers and unexpected patterns in data. |
+| `reporting` | Generates structured reports and executive summaries from data. |
+| `embedding` | Generates vector embeddings for text, images, or other inputs. |
+| `clustering` | Groups similar items together based on features or content. |
+| `ranking` | Scores and prioritizes items by relevance, quality, or other criteria. |
+
+### Search & Retrieval
+
+| ID | Description |
+|----|-------------|
+| `web-search` | Searches the public internet for information. |
+| `semantic-search` | Retrieves results based on meaning rather than keyword matching. |
+| `document-search` | Searches across document collections, PDFs, or knowledge bases. |
+| `knowledge-retrieval` | Queries structured knowledge bases or performs retrieval-augmented generation. |
+| `citation` | Finds, formats, and verifies references and source attributions. |
+
+### Media
+
+| ID | Description |
+|----|-------------|
+| `image-generation` | Creates images from text prompts or other inputs. |
+| `image-editing` | Modifies, enhances, or transforms existing images. |
+| `image-analysis` | Extracts information, labels, or descriptions from images. |
+| `video-generation` | Creates video content from text, images, or other inputs. |
+| `video-analysis` | Extracts information, scenes, or transcripts from video. |
+| `audio-transcription` | Converts spoken audio into text. |
+| `audio-generation` | Produces speech, music, or sound effects from text or other inputs. |
+| `ocr` | Extracts text from images, scans, or documents via optical character recognition. |
+| `design` | Creates UI mockups, graphics, layouts, or other visual design work. |
+| `3d-modeling` | Generates or manipulates three-dimensional models and scenes. |
+
+### Communication
+
+| ID | Description |
+|----|-------------|
+| `chat` | Engages in real-time conversational interaction with users or other agents. |
+| `email-drafting` | Composes, formats, and suggests email messages. |
+| `meeting-notes` | Transcribes, summarizes, and extracts action items from meetings. |
+| `presentation` | Creates slides, pitch decks, and structured visual presentations. |
+| `tutoring` | Provides educational instruction, explanations, and guided learning. |
+| `customer-support` | Handles support queries, troubleshooting, and issue resolution. |
+| `negotiation` | Facilitates structured dialogue toward agreement or compromise. |
+
+### Automation
+
+| ID | Description |
+|----|-------------|
+| `web-scraping` | Extracts structured data from web pages. |
+| `api-integration` | Connects to and orchestrates third-party APIs. |
+| `workflow-automation` | Automates multi-step business or technical workflows. |
+| `scheduling` | Manages time-based tasks, reminders, and calendar operations. |
+| `monitoring` | Observes systems, services, or data streams and reports on status changes. |
+| `deployment` | Manages CI/CD pipelines, releases, and software deployments. |
+| `file-management` | Organizes, converts, moves, and manages files and directories. |
+| `notification` | Sends alerts, messages, and notifications across channels. |
+| `data-entry` | Fills forms, inputs data, and automates manual entry tasks. |
+
+### Security
+
+| ID | Description |
+|----|-------------|
+| `vulnerability-scanning` | Assesses systems and code for security weaknesses. |
+| `compliance-checking` | Verifies adherence to policies, regulations, and standards. |
+| `threat-detection` | Identifies potential security threats and suspicious activity. |
+| `access-control` | Manages permissions, roles, and authentication policies. |
+| `encryption` | Handles data encryption, decryption, and key management. |
 
 Custom capability IDs MAY be used. They MUST be lowercase, hyphen-separated identifiers.
 

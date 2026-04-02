@@ -1,3 +1,4 @@
+import { CAPABILITIES, getCapabilitiesGrouped } from "@/lib/agent-capabilities";
 import styles from "./spec.module.css";
 
 export const metadata = {
@@ -210,35 +211,32 @@ export default function ManifestSpecPage() {
           </table>
 
           <h2>Capability Vocabulary</h2>
-          <p>20 starter capabilities (custom IDs allowed, lowercase, hyphen-separated):</p>
-          <div className={styles.pills}>
-            {[
-              "research",
-              "summarization",
-              "translation",
-              "code-generation",
-              "code-review",
-              "data-analysis",
-              "image-generation",
-              "image-analysis",
-              "audio-transcription",
-              "web-scraping",
-              "api-integration",
-              "workflow-automation",
-              "scheduling",
-              "monitoring",
-              "content-writing",
-              "chat",
-              "reasoning",
-              "math",
-              "search",
-              "embedding",
-            ].map((cap) => (
-              <code key={cap} className={styles.capPill}>
-                {cap}
-              </code>
-            ))}
-          </div>
+          <p>
+            {CAPABILITIES.length} registered capabilities across{" "}
+            {getCapabilitiesGrouped().length} categories. Custom IDs are
+            allowed (lowercase, hyphen-separated).
+          </p>
+          {getCapabilitiesGrouped().map(({ category, capabilities }) => (
+            <div key={category.id}>
+              <h3>{category.label}</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {capabilities.map((c) => (
+                    <tr key={c.id}>
+                      <td><code>{c.id}</code></td>
+                      <td>{c.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
 
           <h2>Resolution Algorithm</h2>
           <p>Priority order:</p>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { CAPABILITIES, getCapabilitiesGrouped } from "@/lib/agent-capabilities";
 import styles from "../docs/agt-manifest-spec/spec.module.css";
 
 export const metadata: Metadata = {
@@ -256,18 +257,33 @@ export default function StandaloneSpecPage() {
           </p>
 
           <h2>4. Capability Vocabulary</h2>
-          <div className={styles.pills}>
-            {[
-              "research", "summarization", "translation", "code-generation",
-              "code-review", "data-analysis", "image-generation",
-              "image-analysis", "audio-transcription", "web-scraping",
-              "api-integration", "workflow-automation", "scheduling",
-              "monitoring", "content-writing", "chat", "reasoning", "math",
-              "search", "embedding",
-            ].map((c) => (
-              <span key={c} className={styles.capPill}>{c}</span>
-            ))}
-          </div>
+          <p>
+            {CAPABILITIES.length} registered capabilities across{" "}
+            {getCapabilitiesGrouped().length} categories. Categories are an
+            organizational convenience — only capability IDs appear in{" "}
+            <code>agt-cap=</code> records.
+          </p>
+          {getCapabilitiesGrouped().map(({ category, capabilities }) => (
+            <div key={category.id}>
+              <h3>{category.label}</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {capabilities.map((c) => (
+                    <tr key={c.id}>
+                      <td><code>{c.id}</code></td>
+                      <td>{c.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
           <p>
             Custom capability IDs MAY be used. They MUST be lowercase,
             hyphen-separated identifiers.

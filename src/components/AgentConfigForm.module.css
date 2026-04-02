@@ -131,6 +131,24 @@
   outline: none;
 }
 
+.capSearch {
+  margin-bottom: 0.75rem;
+}
+
+.capCategoryGroup {
+  margin-bottom: 0.75rem;
+}
+
+.capCategoryLabel {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: 0.375rem;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;

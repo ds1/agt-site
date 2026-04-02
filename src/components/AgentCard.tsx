@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { getCapabilityLabel, getCapabilityDescription } from "@/lib/agent-capabilities";
 import styles from "./AgentCard.module.css";
 
 export interface AgentManifest {
@@ -45,8 +46,8 @@ export default function AgentCard({ agent }: { agent: AgentManifest }) {
           </span>
         ))}
         {agent.capabilities.map((c) => (
-          <span key={c} className={styles.capPill}>
-            {c}
+          <span key={c} className={styles.capPill} title={getCapabilityDescription(c) || undefined}>
+            {getCapabilityLabel(c)}
           </span>
         ))}
       </div>

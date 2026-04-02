@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import AgentCard, { type AgentManifest } from "./AgentCard";
-import { CAPABILITIES, PROTOCOLS } from "@/lib/agent-capabilities";
+import { PROTOCOLS, CAPABILITY_CATEGORIES, getCapabilitiesByCategory } from "@/lib/agent-capabilities";
 import styles from "./ExploreContent.module.css";
 
 export default function ExploreContent() {
@@ -81,10 +81,14 @@ export default function ExploreContent() {
             onChange={(e) => setFilterCap(e.target.value)}
           >
             <option value="">All capabilities</option>
-            {CAPABILITIES.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.label}
-              </option>
+            {CAPABILITY_CATEGORIES.map((cat) => (
+              <optgroup key={cat.id} label={cat.label}>
+                {getCapabilitiesByCategory(cat.id).map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
         </div>

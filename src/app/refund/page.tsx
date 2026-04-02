@@ -52,7 +52,7 @@ export default function RefundPolicyPage() {
               The NFT has been permanently minted on the Polygon blockchain.
             </li>
             <li>
-              The domain name has been registered with the Freename registrar and
+              The domain name has been registered with the registrar and
               cannot be &quot;un-registered.&quot;
             </li>
             <li>

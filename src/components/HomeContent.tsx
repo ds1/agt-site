@@ -89,7 +89,7 @@ export default function HomeContent() {
         </div>
 
         <p className={styles.manifestCaption}>
-          Your agent&apos;s manifest — stored on-chain, resolved by any client.{" "}
+          Your agent&apos;s manifest — stored as DNS records, owned as an NFT on Polygon.{" "}
           <a href="/docs/agt-manifest-spec">Read the spec</a>
         </p>
       </section>
@@ -143,7 +143,8 @@ agent.endpoints[0].url  // 'https://researcher.example.com/mcp'`}</code>
         </pre>
 
         <p className={styles.manifestCaption}>
-          Zero dependencies. Works in Node, Deno, Bun, and browsers.
+          Resolve any .agt name with one call.{" "}
+          <a href="/docs/resolver-sdk">SDK docs</a>
         </p>
       </section>
     </main>

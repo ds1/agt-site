@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import stripe from "@/lib/stripe";
-import FreenameAPI from "@/lib/freename-api";
+import FreenameAPI, { FreenameRateLimitError, FreenameTimeoutError } from "@/lib/freename-api";
 import { randomUUID } from "crypto";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { calculatePrice } from "@/lib/pricing";
@@ -142,9 +142,21 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Checkout error:", error);
-    const message = error instanceof Error ? error.message : "Checkout failed";
+    if (error instanceof FreenameRateLimitError) {
+      return NextResponse.json(
+        { success: false, error: "Service is busy. Please try again in a moment." },
+        { status: 429 }
+      );
+    }
+    if (error instanceof FreenameTimeoutError) {
+      return NextResponse.json(
+        { success: false, error: "Could not verify domain availability. Please try again." },
+        { status: 504 }
+      );
+    }
+    // Don't leak internal error details to the client
     return NextResponse.json(
-      { success: false, error: message },
+      { success: false, error: "Checkout failed. Please try again." },
       { status: 500 }
     );
   }

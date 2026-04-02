@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import FreenameAPI from "@/lib/freename-api";
+import FreenameAPI, { FreenameRateLimitError, FreenameTimeoutError } from "@/lib/freename-api";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { calculatePrice } from "@/lib/pricing";
 
@@ -107,6 +107,18 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Search error:", error);
+    if (error instanceof FreenameRateLimitError) {
+      return NextResponse.json(
+        { success: false, error: "Service is busy. Please try again in a moment." },
+        { status: 429 }
+      );
+    }
+    if (error instanceof FreenameTimeoutError) {
+      return NextResponse.json(
+        { success: false, error: "Search timed out. Please try again." },
+        { status: 504 }
+      );
+    }
     return NextResponse.json(
       { success: false, error: "Search failed. Please try again." },
       { status: 500 }

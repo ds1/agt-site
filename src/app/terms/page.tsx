@@ -32,7 +32,7 @@ export default function TermsPage() {
             The Service allows users to search for, purchase, and register .agt
             domain names as NFTs minted on the Polygon blockchain. Each .agt
             name serves as a decentralized identity for AI agents, with
-            configuration stored as DNS TXT records via the Freename registrar.
+            configuration stored as DNS TXT records via the domain registrar.
           </p>
         </section>
 

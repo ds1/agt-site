@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import stripe from "@/lib/stripe";
 import { fulfillDomainClaim } from "@/lib/fulfillment";
 import { recordTransaction } from "@/lib/revenue";
+import { log } from "@/lib/logger";
 import type Stripe from "stripe";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err) {
-    console.error("Webhook signature verification failed:", err);
+    log.error("webhook.signature_invalid", { error: String(err) });
     return NextResponse.json(
       { error: "Invalid signature" },
       { status: 400 }
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
       break;
 
     default:
-      console.log(`[Stripe] Unhandled event type: ${event.type}`);
+      log.info("webhook.unhandled_event", { type: event.type });
   }
 
   // Always return 200 to Stripe
@@ -72,11 +73,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   if (fulfillment_status === "complete") return;
 
   if (!domain || !walletAddress) {
-    console.error("[Stripe] Webhook missing metadata:", session.id);
+    log.error("webhook.missing_metadata", { sessionId: session.id });
     return;
   }
 
-  console.log(`[Stripe] Fulfilling ${domain} for ${walletAddress}`);
+  log.info("webhook.fulfilling", { domain, walletAddress, sessionId: session.id });
 
   // Record the sale
   const grossAmount = session.amount_total ?? 0;
@@ -95,7 +96,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         stripeFee = bt.fee;
       }
     } catch (err) {
-      console.error("[Stripe] Could not fetch balance transaction:", err);
+      log.warn("webhook.balance_transaction_fetch_failed", { sessionId: session.id, error: String(err) });
     }
   }
 
@@ -128,7 +129,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           zoneUuid: result.zoneUuid || "",
         },
       });
-      console.log(`[Stripe] Fulfilled ${domain} — zone ${result.zoneUuid}`);
+      log.info("webhook.fulfilled", { domain, zoneUuid: result.zoneUuid, sessionId: session.id });
     } else {
       await stripe.checkout.sessions.update(session.id, {
         metadata: {
@@ -137,7 +138,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           fulfillment_error: result.error || "Unknown error",
         },
       });
-      console.error(`[Stripe] Fulfillment failed for ${domain}:`, result.error);
+      log.critical("webhook.fulfillment_failed", { domain, error: result.error, sessionId: session.id });
 
       // Auto-refund on fulfillment failure
       if (session.payment_intent) {
@@ -146,14 +147,14 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             payment_intent: session.payment_intent as string,
             reason: "requested_by_customer",
           });
-          console.log(`[Stripe] Auto-refunded payment for ${domain}`);
+          log.info("webhook.auto_refund", { domain, sessionId: session.id });
         } catch (refundErr) {
-          console.error(`[Stripe] Refund failed for ${domain}:`, refundErr);
+          log.critical("webhook.auto_refund_failed", { domain, sessionId: session.id, error: String(refundErr) });
         }
       }
     }
   } catch (error) {
-    console.error(`[Stripe] Fulfillment error for ${domain}:`, error);
+    log.critical("webhook.fulfillment_crash", { domain, sessionId: session.id, error: String(error) });
     await stripe.checkout.sessions.update(session.id, {
       metadata: {
         ...session.metadata,
@@ -170,10 +171,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
 async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
   const { domain, walletAddress } = session.metadata || {};
-  console.log(
-    `[Stripe] Checkout expired: ${domain || "unknown"} (wallet: ${walletAddress || "unknown"}, session: ${session.id})`
-  );
-  // Future: trigger abandoned-cart email (#28)
+  log.info("webhook.checkout_expired", { domain, walletAddress, sessionId: session.id });
 }
 
 // -----------------------------------------------------------------------------
@@ -185,28 +183,19 @@ async function handleDisputeCreated(dispute: Stripe.Dispute) {
   const piId =
     typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id;
 
-  // Structured alert — tagged for log-based alerting (Vercel, Datadog, etc.)
-  console.error(
-    JSON.stringify({
-      alert: "DISPUTE_CREATED",
-      severity: "critical",
-      disputeId: dispute.id,
-      chargeId: charge,
-      paymentIntentId: piId,
-      amount: dispute.amount,
-      currency: dispute.currency,
-      reason: dispute.reason,
-      status: dispute.status,
-      evidenceDueBy: dispute.evidence_details?.due_by
-        ? new Date(dispute.evidence_details.due_by * 1000).toISOString()
-        : null,
-      message: `CHARGEBACK ALERT: ${dispute.amount} ${dispute.currency} dispute (${dispute.reason}) — evidence due ${
-        dispute.evidence_details?.due_by
-          ? new Date(dispute.evidence_details.due_by * 1000).toISOString()
-          : "unknown"
-      }. Review at https://dashboard.stripe.com/disputes/${dispute.id}`,
-    })
-  );
+  log.critical("webhook.dispute_created", {
+    disputeId: dispute.id,
+    chargeId: charge,
+    paymentIntentId: piId,
+    amount: dispute.amount,
+    currency: dispute.currency,
+    reason: dispute.reason,
+    status: dispute.status,
+    evidenceDueBy: dispute.evidence_details?.due_by
+      ? new Date(dispute.evidence_details.due_by * 1000).toISOString()
+      : null,
+    stripeUrl: `https://dashboard.stripe.com/disputes/${dispute.id}`,
+  });
 
   await recordTransaction({
     type: "dispute_created",
@@ -225,10 +214,7 @@ async function handleDisputeCreated(dispute: Stripe.Dispute) {
 // -----------------------------------------------------------------------------
 
 async function handleDisputeUpdated(dispute: Stripe.Dispute) {
-  console.log(
-    `[Stripe] Dispute updated: ${dispute.id} — status: ${dispute.status}, reason: ${dispute.reason}`
-  );
-  // Future: update dispute tracking record
+  log.info("webhook.dispute_updated", { disputeId: dispute.id, status: dispute.status, reason: dispute.reason });
 }
 
 // -----------------------------------------------------------------------------
@@ -237,9 +223,7 @@ async function handleDisputeUpdated(dispute: Stripe.Dispute) {
 
 async function handleDisputeClosed(dispute: Stripe.Dispute) {
   const won = dispute.status === "won";
-  console.log(
-    `[Stripe] Dispute closed: ${dispute.id} — ${won ? "WON" : "LOST"} (${dispute.amount} ${dispute.currency})`
-  );
+  log.info("webhook.dispute_closed", { disputeId: dispute.id, outcome: won ? "won" : "lost", amount: dispute.amount, currency: dispute.currency });
 
   await recordTransaction({
     type: "dispute_closed",
@@ -260,9 +244,7 @@ async function handleDisputeClosed(dispute: Stripe.Dispute) {
 
 async function handleChargeRefunded(charge: Stripe.Charge) {
   const refunded = charge.amount_refunded;
-  console.log(
-    `[Stripe] Charge refunded: ${charge.id} — ${refunded} ${charge.currency}`
-  );
+  log.info("webhook.charge_refunded", { chargeId: charge.id, amount: refunded, currency: charge.currency });
 
   // Find domain from payment intent metadata
   let domain: string | undefined;

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import AgentConfigForm from "./AgentConfigForm";
+import { analytics } from "@/lib/analytics";
 import styles from "./ClaimContent.module.css";
 
 type Step = "search" | "payment" | "fulfilling" | "minting" | "done" | "configure" | "failed";
@@ -52,6 +53,7 @@ export default function ClaimContent() {
     setError(null);
     setResult(null);
     setStep("search");
+    analytics.searchPerformed(name);
 
     try {
       const resp = await fetch(`/api/search?name=${encodeURIComponent(name)}`);
@@ -61,6 +63,7 @@ export default function ClaimContent() {
         return;
       }
       setResult(data);
+      analytics.searchResult(data.fullDomain, data.status);
     } catch {
       setError("Search failed. Please try again.");
     } finally {
@@ -75,9 +78,11 @@ export default function ClaimContent() {
 
     if (sessionId) {
       // Returning from Stripe Checkout — poll for fulfillment
+      analytics.checkoutCompleted(searchParams.get("name") || "unknown");
       setStep("fulfilling");
       startFulfillmentPolling(sessionId);
     } else if (cancelled) {
+      analytics.checkoutCancelled(searchParams.get("name") || "unknown");
       setError("Payment was cancelled. You can try again.");
       if (searchParams.get("name")) handleSearch();
     } else if (searchParams.get("name")) {
@@ -96,6 +101,7 @@ export default function ClaimContent() {
 
     setError(null);
     setStep("payment");
+    analytics.checkoutInitiated(result.fullDomain, result.price?.amount ?? 0);
 
     try {
       const resp = await fetch("/api/checkout", {
@@ -143,10 +149,12 @@ export default function ClaimContent() {
         if (data.fulfillment_status === "complete" && data.zoneUuid) {
           clearInterval(pollRef.current!);
           setZoneUuid(data.zoneUuid);
+          analytics.registrationComplete(data.domain || "unknown");
           setStep("minting");
           startMintingPolling(data.domain);
         } else if (data.fulfillment_status === "failed") {
           clearInterval(pollRef.current!);
+          analytics.registrationFailed(data.domain || "unknown");
           setStep("failed");
         }
       } catch {
@@ -462,10 +470,12 @@ export default function ClaimContent() {
           domain={domain}
           onComplete={(res) => {
             setAgentConfigResult(res);
+            analytics.agentConfigSaved(domain, res.recordCount ?? 0);
             setStep("done");
           }}
           onSkip={() => {
             setAgentConfigResult({ configured: false });
+            analytics.agentConfigSkipped(domain);
             setStep("done");
           }}
         />

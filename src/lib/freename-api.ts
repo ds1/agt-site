@@ -5,6 +5,34 @@ let _cachedToken: string | null = null;
 let _tokenExpiresAt = 0;
 let _refreshToken: string | null = null;
 
+// --- Global rate limiter for Freename API calls ---
+const API_RATE_LIMIT = 30; // max calls per window
+const API_RATE_WINDOW_MS = 60_000; // 1 minute
+const _apiCallTimestamps: number[] = [];
+
+function checkGlobalRateLimit(): boolean {
+  const now = Date.now();
+  // Evict old timestamps
+  while (_apiCallTimestamps.length > 0 && now - _apiCallTimestamps[0] > API_RATE_WINDOW_MS) {
+    _apiCallTimestamps.shift();
+  }
+  if (_apiCallTimestamps.length >= API_RATE_LIMIT) return false;
+  _apiCallTimestamps.push(now);
+  return true;
+}
+
+// --- Search result cache (45s TTL) ---
+const _searchCache = new Map<string, { data: unknown; expiresAt: number }>();
+const SEARCH_CACHE_TTL_MS = 45_000;
+
+// Clean up expired cache entries every 2 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of _searchCache) {
+    if (entry.expiresAt <= now) _searchCache.delete(key);
+  }
+}, 120_000);
+
 class FreenameAPI {
   baseURL: string;
   username: string | undefined;
@@ -80,19 +108,38 @@ class FreenameAPI {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async request(endpoint: string, options: any = {}): Promise<any> {
+  async request(endpoint: string, options: any = {}, timeoutMs = 15_000): Promise<any> {
+    // Global rate limit check
+    if (!checkGlobalRateLimit()) {
+      console.warn(`[Freename] Global rate limit reached (${API_RATE_LIMIT}/${API_RATE_WINDOW_MS}ms)`);
+      throw new FreenameRateLimitError("API rate limit reached. Please try again shortly.");
+    }
+
     const token = await this.getAccessToken();
     const url = `${this.baseURL}/api/v1/${this.apiPath}${endpoint}`;
+    const start = Date.now();
+
+    // Abort controller for timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const response = await fetch(url, {
         ...options,
+        signal: controller.signal,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           ...options.headers
         }
       });
+
+      const elapsed = Date.now() - start;
+      console.log(`[Freename] ${options.method || 'GET'} ${endpoint} — ${response.status} (${elapsed}ms)`);
+
+      if (response.status === 429) {
+        throw new FreenameRateLimitError("Freename API rate limit exceeded.");
+      }
 
       const data = await response.json();
 
@@ -102,14 +149,31 @@ class FreenameAPI {
 
       return data;
     } catch (error) {
-      console.error(`Freename API Error: ${endpoint}`, error);
+      const elapsed = Date.now() - start;
+      if (error instanceof FreenameRateLimitError) throw error;
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        console.error(`[Freename] TIMEOUT ${endpoint} after ${elapsed}ms`);
+        throw new FreenameTimeoutError("Request timed out. Please try again.");
+      }
+      console.error(`[Freename] ERROR ${endpoint} (${elapsed}ms):`, error);
       throw error;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
-  // Search for domains
+  // Search for domains (cached for 45s)
   async searchDomains(searchString: string) {
-    return this.request(`/search?searchString=${encodeURIComponent(searchString)}`);
+    const cacheKey = searchString.toLowerCase();
+    const now = Date.now();
+    const cached = _searchCache.get(cacheKey);
+    if (cached && cached.expiresAt > now) {
+      return cached.data;
+    }
+
+    const data = await this.request(`/search?searchString=${encodeURIComponent(searchString)}`);
+    _searchCache.set(cacheKey, { data, expiresAt: now + SEARCH_CACHE_TTL_MS });
+    return data;
   }
 
   // Check availability
@@ -182,6 +246,20 @@ class FreenameAPI {
     return this.request(`/records/${encodeURIComponent(recordUuid)}`, {
       method: 'DELETE'
     });
+  }
+}
+
+export class FreenameRateLimitError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "FreenameRateLimitError";
+  }
+}
+
+export class FreenameTimeoutError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "FreenameTimeoutError";
   }
 }
 

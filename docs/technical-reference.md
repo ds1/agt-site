@@ -504,10 +504,31 @@ Token is cached at module level in `freename-api.ts` with 60-second buffer. Auto
 |---------|---------------|
 | **Global rate limiting** | 30 requests/minute across all users. Returns `FreenameRateLimitError`. |
 | **Search caching** | 45-second TTL. Same search string returns cached result. Auto-evicts expired entries. |
-| **Request timeout** | 15-second default via `AbortController`. Returns `FreenameTimeoutError`. |
+| **Request timeout** | 30-second default via `AbortController`. Zone creation uses 90s dedicated timeout. Returns `FreenameTimeoutError`. |
+| **Zone creation retry** | If zone creation times out, waits 5s, re-checks availability. If domain is taken (zone was created despite timeout), proceeds to minting. If still available, retries once. |
 | **429 handling** | Freename 429 responses caught and surfaced as user-friendly errors. |
 | **Request timing** | Every API call logged with endpoint, status code, and elapsed milliseconds. |
 | **Error sanitization** | Internal Freename errors are not exposed to end users. API routes return generic messages. |
+
+### Endpoint Performance
+
+Zone creation (`POST /zones`) is significantly slower than other endpoints (~20-45s vs <1s). This is a Freename backend characteristic, not a network issue. The zone creation timeout is set to 90s to accommodate this. Other endpoints use the 30s default.
+
+### Wallet Address Behavior
+
+The `walletAddress` field appears in both zone creation and minting requests. During testing, a zone was created with a different wallet than the one used for minting — minting succeeded. Clarification pending from Freename on whether the mismatch has downstream implications (see GitHub issue #94). Our fulfillment flow passes the same wallet address to both calls.
+
+### Required Fields for Zone Creation
+
+Per Freename API docs, `POST /zones` requires:
+- `name` — full domain (e.g., `example.agt`)
+- `status` — `"OK"`
+- `level` — `"TLD"` (even for second-level domains, per docs)
+- `chain` — `"POLYGON"` (only supported chain currently)
+- `registrantUuid` — UUID string (default: `00023a69-7ac9-475f-bd85-360e9a05e2bc`)
+- `walletAddress` — EVM address for the registrant
+- `registrationDate` — format `YYYY-MM-DDThh:mm:ss` (no milliseconds or timezone)
+- `records` — array (can be empty)
 
 ### Key Endpoints
 

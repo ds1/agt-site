@@ -494,7 +494,7 @@ Token is cached at module level in `freename-api.ts` with 60-second buffer. Auto
 
 ### Access Control
 
-- APIs are IP-whitelisted. Freename must whitelist the server's IP.
+- Freename docs reference IP whitelisting for reseller operations, but in practice all endpoints work with token auth alone. Zone creation is slow (~20-45s) — use extended timeouts.
 - The reseller must not delegate API credentials.
 - Rate limits are agreed per contract. Some endpoints are quota-limited.
 
@@ -871,7 +871,7 @@ Implementation: 0x8Ea27Ade73926c6AcA0a2bd1fbc657E1A349710f (unverified)
 - Built with `npm run build` (Next.js 16 + Turbopack)
 - Deployable to Vercel, Cloudflare Pages, or any Node.js host
 - Environment variables required: `FREENAME_API_EMAIL`, `FREENAME_API_PASSWORD`, `FREENAME_API_URL`
-- Freename API requires IP whitelisting
+- Freename zone creation endpoint is slow (~20-45s); timeouts must account for this
 
 ### Resolver SDK
 

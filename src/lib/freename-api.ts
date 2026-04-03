@@ -108,7 +108,7 @@ class FreenameAPI {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async request(endpoint: string, options: any = {}, timeoutMs = 15_000): Promise<any> {
+  async request(endpoint: string, options: any = {}, timeoutMs = 30_000): Promise<any> {
     // Global rate limit check
     if (!checkGlobalRateLimit()) {
       console.warn(`[Freename] Global rate limit reached (${API_RATE_LIMIT}/${API_RATE_WINDOW_MS}ms)`);
@@ -183,20 +183,24 @@ class FreenameAPI {
   }
 
   // Create zone (domain registration)
+  // Zone creation is slow on Freename's backend (~20-45s), so use a 90s timeout.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async createZone(data: any) {
+    const now = new Date();
+    const registrationDate = now.toISOString().replace(/\.\d{3}Z$/, '');
     return this.request('/zones?mint=false', {
       method: 'POST',
       body: JSON.stringify({
         name: data.name,
         status: 'OK',
-        level: 'SLD',
+        level: 'TLD',
         chain: data.chain || 'POLYGON',
+        registrantUuid: data.registrantUuid || '00023a69-7ac9-475f-bd85-360e9a05e2bc',
         walletAddress: data.walletAddress,
-        registrationDate: new Date().toISOString(),
+        registrationDate,
         records: data.records || []
       })
-    });
+    }, 90_000);
   }
 
   // Trigger minting

@@ -1,14 +1,15 @@
 # Status
 
-Last updated: 2026-04-01
+Last updated: 2026-04-03
 
 ## Current state
 
-Site deployed to Vercel (agtnames.com). Stripe payment integration complete with live and test keys configured. Pricing engine applies 40% markup on Freename base prices. Webhook handles 6 event types with revenue tracking. Terms acceptance required before checkout. Vercel production env vars set. Awaiting Freename response on API authorization for agtnames.com and revenue share clarification before accepting real payments.
+Site deployed to Vercel (agtnames.com). Stripe payment integration complete with live and test keys configured. Pricing engine applies 40% markup on Freename base prices. Webhook handles 6 event types with revenue tracking. Terms acceptance required before checkout. Vercel production env vars set. Freename API confirmed working — zone creation, minting, and NFT import to MetaMask validated end-to-end (2026-04-03). Awaiting Freename response on domain authorization for agtnames.com and revenue share clarification before accepting real payments.
 
 ## Active blockers
 
-- **Freename fulfillment** — Zone creation returns "unexpected error." Likely needs IP whitelisting and/or domain authorization for agtnames.com. Email sent to Freename 2026-04-01. See [#27](https://github.com/ds1/agt-site/issues/27), [#87](https://github.com/ds1/agt-site/issues/87).
+- **Freename domain authorization** — Awaiting confirmation that Reseller API is authorized for agtnames.com (not agtdomains.com). Email sent 2026-04-01, follow-up 2026-04-03. See [#87](https://github.com/ds1/agt-site/issues/87).
+- **Revenue share clarification** — Net revenue definition, tax treatment, retail pricing confirmation still pending from Freename. See [#89](https://github.com/ds1/agt-site/issues/89), [#90](https://github.com/ds1/agt-site/issues/90).
 - **Promo code support** — Waiting on Freename re: reseller API coupon support. See [#18](https://github.com/ds1/agt-site/issues/18).
 
 ## Tracking

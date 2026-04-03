@@ -162,6 +162,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         fulfillment_error: error instanceof Error ? error.message : "Fulfillment crashed",
       },
     });
+
+    // Auto-refund on crash (same as the explicit failure path above)
+    if (session.payment_intent) {
+      try {
+        await stripe.refunds.create({
+          payment_intent: session.payment_intent as string,
+          reason: "requested_by_customer",
+        });
+        log.info("webhook.auto_refund", { domain, sessionId: session.id });
+      } catch (refundErr) {
+        log.critical("webhook.auto_refund_failed", { domain, sessionId: session.id, error: String(refundErr) });
+      }
+    }
   }
 }
 

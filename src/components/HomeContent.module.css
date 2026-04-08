@@ -172,6 +172,29 @@
   margin: 0;
 }
 
+/* Featured agents */
+.featuredGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+.ctaRow {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.ctaLink {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--purple-accent);
+  text-decoration: none;
+}
+.ctaLink:hover {
+  text-decoration: underline;
+}
+
 /* Code block */
 .codeBlock {
   background: var(--bg-surface);

@@ -6,6 +6,7 @@ import styles from "./Nav.module.css";
 
 const links = [
   { href: "/explore", label: "Explore" },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/claim", label: "Claim" },
 ];
 

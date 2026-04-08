@@ -1,5 +1,6 @@
 import FreenameAPI, { FreenameTimeoutError } from "./freename-api";
 import { log } from "./logger";
+import { registerDomain } from "./domain-registry";
 
 export interface FulfillmentResult {
   success: boolean;
@@ -80,6 +81,9 @@ export async function fulfillDomainClaim(
       { type: "TXT", name: "@", value: "agt-version=1", ttl: 300 },
     ]);
   }
+
+  // 5. Register domain for explore directory
+  registerDomain(domain);
 
   const elapsed = Date.now() - start;
   log.info("fulfillment.complete", { domain, walletAddress, zoneUuid: zoneUuid || "unknown", elapsedMs: elapsed });

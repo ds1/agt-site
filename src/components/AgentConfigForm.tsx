@@ -2,7 +2,19 @@
 
 import { useState } from "react";
 import { PROTOCOLS, PRICING_OPTIONS, getCapabilitiesGrouped, searchCapabilities } from "@/lib/agent-capabilities";
+import { AGENT_TEMPLATES } from "@/lib/agent-templates";
 import styles from "./AgentConfigForm.module.css";
+
+export interface AgentConfigValues {
+  name?: string;
+  description?: string;
+  icon?: string;
+  website?: string;
+  protocols?: string[];
+  capabilities?: string[];
+  endpoints?: Record<string, string>;
+  pricing?: string;
+}
 
 interface Props {
   zoneUuid: string;
@@ -10,18 +22,20 @@ interface Props {
   domain: string;
   onComplete: (result: { configured: boolean; recordCount?: number; records?: string[] }) => void;
   onSkip: () => void;
+  initialValues?: AgentConfigValues;
+  skipLabel?: string;
 }
 
-export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onComplete, onSkip }: Props) {
+export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onComplete, onSkip, initialValues, skipLabel }: Props) {
   const [form, setForm] = useState({
-    name: "",
-    description: "",
-    icon: "",
-    website: "",
-    protocols: [] as string[],
-    capabilities: [] as string[],
-    endpoints: {} as Record<string, string>,
-    pricing: "",
+    name: initialValues?.name || "",
+    description: initialValues?.description || "",
+    icon: initialValues?.icon || "",
+    website: initialValues?.website || "",
+    protocols: initialValues?.protocols || [] as string[],
+    capabilities: initialValues?.capabilities || [] as string[],
+    endpoints: initialValues?.endpoints || {} as Record<string, string>,
+    pricing: initialValues?.pricing || "",
     customCap: "",
   });
   const [loading, setLoading] = useState(false);
@@ -117,6 +131,33 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
       </div>
 
       {error && <div className={styles.error}>{error}</div>}
+
+      <div className={styles.field}>
+        <label className={styles.label}>Start from a template</label>
+        <div className={styles.chips}>
+          {AGENT_TEMPLATES.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={styles.chip}
+              title={t.description}
+              onClick={() =>
+                setForm((p) => ({
+                  ...p,
+                  name: t.config.name || p.name,
+                  description: t.config.description || p.description,
+                  protocols: t.config.protocols,
+                  capabilities: t.config.capabilities,
+                  endpoints: {},
+                  pricing: t.config.pricing,
+                }))
+              }
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className={styles.field}>
         <label className={styles.label}>Name</label>
@@ -306,7 +347,7 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
 
       <div className={styles.actions}>
         <button type="button" className={styles.skipBtn} onClick={onSkip} disabled={loading}>
-          Skip for now
+          {skipLabel || "Skip for now"}
         </button>
         <button type="button" className={styles.saveBtn} onClick={handleSubmit} disabled={loading}>
           {loading ? "Saving..." : "Save configuration"}

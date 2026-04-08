@@ -1,12 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import AgentCard, { type AgentManifest } from "./AgentCard";
 import styles from "./HomeContent.module.css";
 
 export default function HomeContent() {
   const [search, setSearch] = useState("");
+  const [featuredAgents, setFeaturedAgents] = useState<AgentManifest[]>([]);
+  const [agentCount, setAgentCount] = useState<number | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch("/api/agents")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setAgentCount(data.count);
+          // Show up to 3 agents that have at least a name and protocol
+          const featured = data.agents
+            .filter((a: AgentManifest) => a.name && a.protocols.length > 0)
+            .slice(0, 3);
+          setFeaturedAgents(featured);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,6 +153,28 @@ export default function HomeContent() {
           </div>
         </div>
       </section>
+
+      {/* Featured agents */}
+      {featuredAgents.length > 0 && (
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            Live agents{agentCount ? ` (${agentCount} registered)` : ""}
+          </h2>
+          <div className={styles.featuredGrid}>
+            {featuredAgents.map((agent) => (
+              <AgentCard key={agent.domain} agent={agent} />
+            ))}
+          </div>
+          <div className={styles.ctaRow}>
+            <Link href="/explore" className={styles.ctaLink}>
+              Explore all agents
+            </Link>
+            <Link href="/dashboard" className={styles.ctaLink}>
+              Manage your agent
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* SDK: show don't tell */}
       <section className={styles.section}>

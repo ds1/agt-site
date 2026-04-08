@@ -1,30 +1,8 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { getKnownDomains } from "@/lib/domain-registry";
 
 const FREENAME_RESOLVER = "https://apis.freename.io/api/v1/resolver/FNS";
-
-const SEED_DOMAINS = [
-  "agt.agt",
-  "scrape.agt",
-  "receipt.agt",
-  "pricing.agt",
-  "tutorial.agt",
-  "ai.agt",
-  "search.agt",
-  "chat.agt",
-  "code.agt",
-  "data.agt",
-  "research.agt",
-  "translate.agt",
-  "monitor.agt",
-  "deploy.agt",
-  "build.agt",
-  "test.agt",
-  "scan.agt",
-  "write.agt",
-  "read.agt",
-  "index.agt",
-];
 
 interface FreenameRecord {
   key: string;
@@ -99,18 +77,57 @@ function parseManifest(
   return m.version ? m : null;
 }
 
+// --- Server-side manifest cache (5-minute TTL) ---
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const _manifestCache = new Map<string, { manifest: AgentManifest | null; expiresAt: number }>();
+let _allCachedAt = 0;
+let _allCachedResult: AgentManifest[] = [];
+
 async function fetchManifest(domain: string): Promise<AgentManifest | null> {
+  const now = Date.now();
+  const cached = _manifestCache.get(domain);
+  if (cached && cached.expiresAt > now) return cached.manifest;
+
   try {
     const resp = await fetch(`${FREENAME_RESOLVER}/${domain}`, {
       next: { revalidate: 300 },
     });
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      _manifestCache.set(domain, { manifest: null, expiresAt: now + CACHE_TTL_MS });
+      return null;
+    }
     const data = await resp.json();
-    if (!data.data?.records) return null;
-    return parseManifest(domain, data.data.records);
+    if (!data.data?.records) {
+      _manifestCache.set(domain, { manifest: null, expiresAt: now + CACHE_TTL_MS });
+      return null;
+    }
+    const manifest = parseManifest(domain, data.data.records);
+    _manifestCache.set(domain, { manifest, expiresAt: now + CACHE_TTL_MS });
+    return manifest;
   } catch {
+    // Don't cache errors — allow retry
     return null;
   }
+}
+
+async function getAllAgents(): Promise<AgentManifest[]> {
+  const now = Date.now();
+  if (_allCachedAt > 0 && now - _allCachedAt < CACHE_TTL_MS) {
+    return _allCachedResult;
+  }
+
+  const domains = getKnownDomains();
+  // Resolve in batches of 5 to avoid hammering the API
+  const results: (AgentManifest | null)[] = [];
+  for (let i = 0; i < domains.length; i += 5) {
+    const batch = domains.slice(i, i + 5);
+    const batchResults = await Promise.all(batch.map(fetchManifest));
+    results.push(...batchResults);
+  }
+
+  _allCachedResult = results.filter((a): a is AgentManifest => a !== null);
+  _allCachedAt = now;
+  return _allCachedResult;
 }
 
 export async function GET(request: Request) {
@@ -128,8 +145,7 @@ export async function GET(request: Request) {
   const protocol = searchParams.get("protocol");
   const q = searchParams.get("q")?.toLowerCase();
 
-  const results = await Promise.all(SEED_DOMAINS.map(fetchManifest));
-  let agents = results.filter((a): a is AgentManifest => a !== null);
+  let agents = await getAllAgents();
 
   if (capability) agents = agents.filter((a) => a.capabilities.includes(capability));
   if (protocol) agents = agents.filter((a) => a.protocols.includes(protocol));

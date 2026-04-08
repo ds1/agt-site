@@ -126,7 +126,7 @@ POST /api/v1/auth/refresh
         <code>{`POST /zones?mint=false
 
 {
-  "name": "researcher.agt",
+  "name": "exampleagent.agt",
   "status": "OK",
   "level": "SLD",
   "chain": "POLYGON",
@@ -142,7 +142,7 @@ POST /api/v1/auth/refresh
 
 {
   "mintDetail": [
-    { "blockchain": "POLYGON", "name": "researcher.agt" }
+    { "blockchain": "POLYGON", "name": "exampleagent.agt" }
   ],
   "walletAddress": "0x..."
 }`}</code>

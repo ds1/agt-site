@@ -72,18 +72,18 @@ export default function HomeContent() {
         <div className={styles.manifestPreview}>
           <div className={styles.manifestLine}>
             <span className={styles.mKey}>agt-name</span>
-            <span className={styles.mVal}>Research Agent</span>
+            <span className={styles.mVal}>Example Agent</span>
           </div>
           <div className={styles.manifestLine}>
             <span className={styles.mKey}>agt-description</span>
             <span className={styles.mVal}>
-              Deep research and source citation
+              General-purpose assistant agent
             </span>
           </div>
           <div className={styles.manifestLine}>
             <span className={styles.mKey}>agt-website</span>
             <span className={styles.mVal}>
-              https://researcher.example.com
+              https://exampleagent.example.com
             </span>
           </div>
           <div className={styles.manifestLine}>
@@ -105,7 +105,7 @@ export default function HomeContent() {
           <div className={styles.manifestLine}>
             <span className={styles.mKey}>agt-endpoint-mcp</span>
             <span className={styles.mVal}>
-              https://researcher.example.com/mcp
+              https://exampleagent.example.com/mcp
             </span>
           </div>
           <div className={styles.manifestLine}>
@@ -183,11 +183,11 @@ export default function HomeContent() {
         <pre className={styles.codeBlock}>
           <code>{`import { resolveAgent } from '@agt/resolver'
 
-const agent = await resolveAgent('researcher.agt')
+const agent = await resolveAgent('exampleagent.agt')
 
 agent.protocols  // ['mcp', 'a2a']
 agent.capabilities  // ['research', 'summarization']
-agent.endpoints[0].url  // 'https://researcher.example.com/mcp'`}</code>
+agent.endpoints[0].url  // 'https://exampleagent.example.com/mcp'`}</code>
         </pre>
 
         <p className={styles.manifestCaption}>

@@ -206,7 +206,7 @@ Custom capability IDs MAY be used. They MUST be lowercase, hyphen-separated iden
 
 To resolve a `.agt` manifest:
 
-1. Query DNS TXT records for the domain (e.g., `researcher.agt`).
+1. Query DNS TXT records for the domain (e.g., `exampleagent.agt`).
 2. Filter for records matching the `agt-*` prefix.
 3. Check for `agt-version=1`. If absent, the domain has no valid manifest.
 4. Parse remaining records according to the field definitions in Section 3.
@@ -240,21 +240,21 @@ A mismatch indicates the manifest may be stale or the domain has been transferre
 
 ## 9. Example
 
-A complete manifest for `researcher.agt`:
+A complete manifest for `exampleagent.agt`:
 
 ```
 agt-version=1
-agt-name=Research Agent
-agt-description=Deep research and source citation
-agt-icon=https://researcher.example.com/icon.png
-agt-website=https://researcher.example.com
+agt-name=Example Agent
+agt-description=General-purpose assistant agent
+agt-icon=https://exampleagent.example.com/icon.png
+agt-website=https://exampleagent.example.com
 agt-owner=0x912D39E13b0bDAe2C5Cf5D0E2f9F4B38aE9c7f6a
 agt-protocol=mcp
 agt-protocol=http
 agt-cap=research
 agt-cap=summarization
-agt-endpoint-mcp=https://researcher.example.com/mcp
-agt-endpoint-http=https://researcher.example.com/api
+agt-endpoint-mcp=https://exampleagent.example.com/mcp
+agt-endpoint-http=https://exampleagent.example.com/api
 agt-pricing=free
 ```
 

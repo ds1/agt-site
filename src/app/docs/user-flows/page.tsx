@@ -53,7 +53,7 @@ export default function UserFlowsPage() {
       <h2>Flow 2: Browse an Agent from the Browser</h2>
       <ol>
         <li>
-          User types <code>researcher.agt</code> in the browser URL bar.
+          User types <code>exampleagent.agt</code> in the browser URL bar.
         </li>
         <li>TLD hint routes to the Freename resolver.</li>
         <li>Freename API returns TXT records.</li>
@@ -77,7 +77,7 @@ export default function UserFlowsPage() {
       <pre>
         <code>{`import { resolveAgent } from '@agt/resolver'
 
-const agent = await resolveAgent('researcher.agt')
+const agent = await resolveAgent('exampleagent.agt')
 if (agent) {
   // Use agent.endpoints[0].url to connect
   // Check agent.protocols for supported communication methods

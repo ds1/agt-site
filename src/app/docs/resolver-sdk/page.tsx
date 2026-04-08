@@ -64,10 +64,10 @@ export default function ResolverSdkPage() {
       <pre>
         <code>{`import { resolveAgent } from '@agt/resolver'
 
-const agent = await resolveAgent('researcher.agt')
+const agent = await resolveAgent('exampleagent.agt')
 
 if (agent) {
-  agent.domain        // 'researcher.agt'
+  agent.domain        // 'exampleagent.agt'
   agent.protocols     // ['mcp', 'http']
   agent.capabilities  // ['research', 'summarization']
   agent.endpoints[0]  // { protocol: 'mcp', url: 'https://...' }
@@ -88,7 +88,7 @@ const agents = await resolveAgents(['a.agt', 'b.agt', 'c.agt'])
       <pre>
         <code>{`import { isAgent } from '@agt/resolver'
 
-const hasConfig = await isAgent('researcher.agt')
+const hasConfig = await isAgent('exampleagent.agt')
 // Returns boolean`}</code>
       </pre>
 
@@ -97,9 +97,9 @@ const hasConfig = await isAgent('researcher.agt')
       <h3>AgentManifest</h3>
       <pre>
         <code>{`interface AgentManifest {
-  domain: string;           // "researcher.agt"
+  domain: string;           // "exampleagent.agt"
   version: number;          // 1
-  name: string | null;      // "Research Agent"
+  name: string | null;      // "Example Agent"
   description: string | null;
   icon: string | null;      // URL to image
   protocols: string[];      // ["mcp", "a2a"]
@@ -129,7 +129,7 @@ const hasConfig = await isAgent('researcher.agt')
         Pass options as the second argument to any resolve function:
       </p>
       <pre>
-        <code>{`const agent = await resolveAgent('researcher.agt', {
+        <code>{`const agent = await resolveAgent('exampleagent.agt', {
   timeout: 5000,
 })`}</code>
       </pre>
@@ -161,6 +161,21 @@ const hasConfig = await isAgent('researcher.agt')
           <code>AgentManifest</code> object.
         </li>
       </ol>
+
+      <h2>v2 Resolution (Planned)</h2>
+      <p>
+        When the SDK encounters an{" "}
+        <code>agt-manifest=ipfs://&#123;cid&#125;</code> TXT record, it will
+        fetch the JSON manifest from an IPFS gateway and return a structured{" "}
+        <code>AgentManifest</code>. If no pointer is found, it falls back to
+        parsing inline v1 TXT records. The return type is the same either way.
+      </p>
+      <p>
+        v2 support is not yet implemented in the SDK. The current version
+        (0.1.0) resolves v1 manifests only. See the{" "}
+        <a href="/docs/agt-manifest-spec#manifest-v2">v2 spec draft</a> for
+        the planned schema and resolution algorithm.
+      </p>
     </article>
   );
 }

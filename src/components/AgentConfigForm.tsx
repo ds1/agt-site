@@ -164,7 +164,7 @@ export default function AgentConfigForm({ zoneUuid, walletAddress, domain, onCom
         <input
           type="text"
           className={styles.input}
-          placeholder="e.g., Research Agent"
+          placeholder="e.g., Example Agent"
           value={form.name}
           onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
           maxLength={100}

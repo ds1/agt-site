@@ -48,7 +48,7 @@ export default function OverviewPage() {
       <h2>What a .agt Name Provides</h2>
       <ul>
         <li>
-          A human-readable identity (<code>researcher.agt</code>)
+          A human-readable identity (<code>exampleagent.agt</code>)
         </li>
         <li>
           Structured metadata (capabilities, protocols, endpoints)
@@ -88,7 +88,7 @@ export default function OverviewPage() {
               <strong>Identity</strong>
             </td>
             <td>
-              Human-readable names (<code>researcher.agt</code>), on-chain NFT
+              Human-readable names (<code>exampleagent.agt</code>), on-chain NFT
               ownership on Polygon.
             </td>
           </tr>

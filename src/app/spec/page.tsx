@@ -293,7 +293,7 @@ export default function StandaloneSpecPage() {
           <ol>
             <li>
               Query DNS TXT records for the domain (e.g.,{" "}
-              <code>researcher.agt</code>).
+              <code>exampleagent.agt</code>).
             </li>
             <li>
               Filter for records matching the <code>agt-</code> prefix.
@@ -357,21 +357,21 @@ export default function StandaloneSpecPage() {
 
           <h2>8. Example</h2>
           <p>
-            A complete manifest for <code>researcher.agt</code>:
+            A complete manifest for <code>exampleagent.agt</code>:
           </p>
           <pre>
             <code>{`agt-version=1
-agt-name=Research Agent
-agt-description=Deep research and source citation
-agt-icon=https://researcher.example.com/icon.png
-agt-website=https://researcher.example.com
+agt-name=Example Agent
+agt-description=General-purpose assistant agent
+agt-icon=https://exampleagent.example.com/icon.png
+agt-website=https://exampleagent.example.com
 agt-owner=0x912D39E13b0bDAe2C5Cf5D0E2f9F4B38aE9c7f6a
 agt-protocol=mcp
 agt-protocol=http
 agt-cap=research
 agt-cap=summarization
-agt-endpoint-mcp=https://researcher.example.com/mcp
-agt-endpoint-http=https://researcher.example.com/api
+agt-endpoint-mcp=https://exampleagent.example.com/mcp
+agt-endpoint-http=https://exampleagent.example.com/api
 agt-pricing=free`}</code>
           </pre>
 
@@ -417,6 +417,157 @@ agt-pricing=free`}</code>
               <tr><td><code>agt-pricing</code></td><td>No</td><td>No</td><td>&mdash;</td></tr>
             </tbody>
           </table>
+          <h2 id="manifest-v2">Manifest v2: JSON on IPFS (Draft)</h2>
+          <p>
+            v0.2.0 adds an alternative to inline TXT records: a full JSON
+            manifest hosted on IPFS, referenced by a single TXT pointer.
+            This enables richer metadata that TXT records cannot express:
+            capability schemas with input/output types, protocol versions,
+            structured pricing, and cryptographic signatures.
+          </p>
+          <p>
+            v1 inline TXT records continue to work unchanged. v2 is additive.
+          </p>
+
+          <h3>TXT Pointer Record</h3>
+          <p>
+            A single TXT record replaces all individual <code>agt-*</code> records:
+          </p>
+          <pre>
+            <code>agt-manifest=ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi</code>
+          </pre>
+
+          <h3>Resolution Priority</h3>
+          <ol>
+            <li>
+              Check for <code>agt-manifest=ipfs://&#123;cid&#125;</code> &mdash;
+              fetch JSON from IPFS gateway, parse, verify signature if present.
+            </li>
+            <li>
+              If no pointer: fall back to <code>agt-version=1</code> inline TXT
+              records (v1).
+            </li>
+            <li>
+              If neither found: no valid manifest.
+            </li>
+          </ol>
+
+          <h3>JSON Schema</h3>
+          <pre>
+            <code>{`{
+  "agt": "2.0",
+  "domain": "exampleagent.agt",
+  "name": "Example Agent",
+  "description": "General-purpose assistant agent",
+  "icon": "https://exampleagent.example.com/icon.png",
+  "website": "https://exampleagent.example.com",
+  "owner": "0x912D39E13b0bDAe2C5Cf5D0E2f9F4B38aE9c7f6a",
+  "protocols": [
+    {
+      "id": "mcp",
+      "version": "2025-11-05",
+      "endpoint": "https://exampleagent.example.com/mcp"
+    },
+    {
+      "id": "http",
+      "endpoint": "https://exampleagent.example.com/api/v1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "research",
+      "description": "Searches academic databases and web sources",
+      "input": {
+        "type": "string",
+        "description": "Natural language research query"
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "summary": { "type": "string" },
+          "sources": { "type": "array" }
+        }
+      }
+    },
+    {
+      "id": "summarization"
+    }
+  ],
+  "pricing": {
+    "model": "freemium",
+    "free_tier": "10 queries/day",
+    "paid": {
+      "currency": "USD",
+      "amount": "0.01",
+      "unit": "per_request"
+    }
+  },
+  "signature": "0x7f3e8d4c..."
+}`}</code>
+          </pre>
+
+          <h3>What v2 Enables</h3>
+          <ul>
+            <li>
+              <strong>Capability schemas</strong> &mdash; declare input/output
+              types so clients can evaluate compatibility programmatically.
+            </li>
+            <li>
+              <strong>Protocol versions</strong> &mdash; specify which version
+              of MCP, A2A, or other protocols the agent supports.
+            </li>
+            <li>
+              <strong>Structured pricing</strong> &mdash; express actual payment
+              terms (currency, amount, billing unit) instead of a single keyword.
+            </li>
+            <li>
+              <strong>Cryptographic signatures</strong> &mdash; prove the
+              manifest was authored by the NFT owner. Three-way verification:
+              signer matches declared owner matches on-chain owner.
+            </li>
+            <li>
+              <strong>Content integrity</strong> &mdash; the IPFS CID is a hash
+              of the content. Tampered manifests won&apos;t match the pointer.
+            </li>
+          </ul>
+
+          <h3>Signature Verification</h3>
+          <ol>
+            <li>
+              Remove the <code>signature</code> field from the JSON.
+            </li>
+            <li>
+              Serialize canonically (keys sorted alphabetically, no whitespace).
+            </li>
+            <li>
+              Recover signer address from the signature and canonical message.
+            </li>
+            <li>
+              Verify: signer == <code>owner</code> field == on-chain NFT owner.
+            </li>
+          </ol>
+
+          <h3>Backward Compatibility</h3>
+          <ul>
+            <li>v1 inline TXT records continue to work unchanged.</li>
+            <li>
+              Clients MUST support v1. v2 support is optional but recommended.
+            </li>
+            <li>
+              Agent owners can use v1 only, v2 only, or both (pointer takes
+              priority).
+            </li>
+          </ul>
+          <p>
+            Full specification:{" "}
+            <a
+              href="https://github.com/ds1/agt-site/blob/master/spec/agt-manifest-v0.2.0.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              spec/agt-manifest-v0.2.0.md
+            </a>
+          </p>
         </article>
       </main>
       <Footer />

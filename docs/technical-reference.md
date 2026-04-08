@@ -45,7 +45,7 @@ The AI agent ecosystem lacks a decentralized identity and discovery layer:
 
 A **namespace for AI agents**, owned across multiple naming systems. A `.agt` name gives an agent:
 
-- A human-readable identity (`researcher.agt`)
+- A human-readable identity (`exampleagent.agt`)
 - Structured metadata (capabilities, protocols, endpoints)
 - Verifiable ownership (on-chain NFT on Polygon)
 - Discoverability (resolvable by any client)
@@ -80,10 +80,10 @@ A **namespace for AI agents**, owned across multiple naming systems. A `.agt` na
 **Freename** is the single source of truth for registration. **Handshake** records are a downstream effect, set by our system.
 
 ```
-Agent developer claims researcher.agt
+Agent developer claims exampleagent.agt
   → Freename Reseller API: create zone, mint NFT on Polygon
   → Our system (future): propagate DNS records to Handshake zone
-  → Result: researcher.agt resolves on BOTH systems
+  → Result: exampleagent.agt resolves on BOTH systems
 
 Freename = ownership layer (who owns it, NFT, on-chain records)
 Handshake = infrastructure layer (DNS records, IP endpoints, DoH reachability)
@@ -200,16 +200,16 @@ The `agt-owner` address can be verified against the Freename NFT owner on-chain:
 
 ```
 agt-version=1
-agt-name=Research Agent
-agt-description=Deep research and source citation
-agt-icon=https://researcher.example.com/icon.png
-agt-website=https://researcher.example.com
+agt-name=Example Agent
+agt-description=General-purpose assistant agent
+agt-icon=https://exampleagent.example.com/icon.png
+agt-website=https://exampleagent.example.com
 agt-protocol=mcp
 agt-protocol=http
 agt-cap=research
 agt-cap=summarization
-agt-endpoint-mcp=https://researcher.example.com/mcp
-agt-endpoint-http=https://researcher.example.com/api/v1
+agt-endpoint-mcp=https://exampleagent.example.com/mcp
+agt-endpoint-http=https://exampleagent.example.com/api/v1
 agt-pricing=freemium
 agt-owner=0xABCD1234...
 ```
@@ -266,13 +266,13 @@ agt-owner=0xABCD1234...
 ### Resolution Flow
 
 ```
-User types "researcher.agt" in URL bar
+User types "exampleagent.agt" in URL bar
   → Frontend (main.js): parse domain, call navigate()
   → Tauri backend (commands.rs): navigate_to_domain()
-  → ResolverCascade.resolve("researcher.agt")
+  → ResolverCascade.resolve("exampleagent.agt")
     → TLD hint: "agt" → Freename resolver (skips cascade)
     → FreenameResolver.resolve_api()
-      → GET https://apis.freename.io/api/v1/resolver/FNS/researcher.agt
+      → GET https://apis.freename.io/api/v1/resolver/FNS/exampleagent.agt
       → Parse records
       → If agt-version=1 found: extract_agent_manifest() → ContentPointer::Agent
       → Else: extract_content() → ContentPointer::Ipfs/Http/etc.
@@ -433,14 +433,14 @@ done:       Summary card — domain claimed, config status, next actions
 import { resolveAgent, resolveAgents, isAgent } from '@agt/resolver'
 
 // Resolve a single agent
-const agent = await resolveAgent('researcher.agt')
+const agent = await resolveAgent('exampleagent.agt')
 // Returns AgentManifest | null
 
 // Resolve multiple agents in parallel
 const agents = await resolveAgents(['a.agt', 'b.agt', 'c.agt'])
 
 // Check if a domain has agent config
-const hasConfig = await isAgent('researcher.agt')
+const hasConfig = await isAgent('exampleagent.agt')
 ```
 
 ### Types
@@ -516,7 +516,7 @@ Zone creation (`POST /zones`) is significantly slower than other endpoints (~20-
 
 ### Wallet Address Behavior
 
-The `walletAddress` field appears in both zone creation and minting requests. During testing, a zone was created with a different wallet than the one used for minting — minting succeeded. Clarification pending from Freename on whether the mismatch has downstream implications (see GitHub issue #94). Our fulfillment flow passes the same wallet address to both calls.
+The `walletAddress` field appears in both zone creation and minting requests. **The minting wallet is authoritative** — it determines where the NFT is delivered and who holds on-chain ownership. The zone-creation wallet does not need to match the minting wallet (confirmed by Freename, 2026-04-08). However, a zone's wallet address cannot be updated after creation. Our fulfillment flow passes the same customer wallet address to both calls, so there is never a mismatch in production.
 
 ### Required Fields for Zone Creation
 
@@ -552,7 +552,7 @@ All under `POST/GET https://apis.freename.io/api/v1/reseller-logic/`
 
 ```json
 {
-  "name": "researcher.agt",
+  "name": "exampleagent.agt",
   "status": "OK",
   "level": "SLD",
   "chain": "POLYGON",
@@ -566,7 +566,7 @@ All under `POST/GET https://apis.freename.io/api/v1/reseller-logic/`
 
 ```json
 {
-  "mintDetail": [{ "blockchain": "POLYGON", "name": "researcher.agt" }],
+  "mintDetail": [{ "blockchain": "POLYGON", "name": "exampleagent.agt" }],
   "walletAddress": "0x..."
 }
 ```
@@ -717,7 +717,7 @@ Client-side event tracking via the global `gtag()` function. No-ops if GA is not
 ### Flow 2: Browse the Agent from the Browser
 
 ```
-1. User types "researcher.agt" in browser URL bar
+1. User types "exampleagent.agt" in browser URL bar
 2. TLD hint routes to Freename resolver
 3. Freename API returns TXT records
 4. extract_agent_manifest() finds agt-version=1, parses all agt-* records
@@ -732,7 +732,7 @@ Client-side event tracking via the global `gtag()` function. No-ops if GA is not
 ```typescript
 import { resolveAgent } from '@agt/resolver'
 
-const agent = await resolveAgent('researcher.agt')
+const agent = await resolveAgent('exampleagent.agt')
 if (agent) {
   // Use agent.endpoints[0].url to connect
   // Check agent.protocols for supported communication methods
@@ -832,9 +832,9 @@ Both the browser's `renderAgentUI()` and the site's `<AgentCard>` component rend
 
 ```typescript
 interface AgentManifest {
-  domain: string;           // "researcher.agt"
+  domain: string;           // "exampleagent.agt"
   version: number;          // 1
-  name: string | null;      // "Research Agent"
+  name: string | null;      // "Example Agent"
   description: string | null;
   icon: string | null;      // URL to image
   protocols: string[];      // ["mcp", "a2a"]
@@ -854,12 +854,12 @@ interface AgentEndpoint {
 
 ```
 Zone UUID: string (from createZone response)
-Domain: "researcher.agt"
+Domain: "exampleagent.agt"
 Chain: "POLYGON"
 Wallet: "0x..."
 Records: [
   { type: "TXT", name: "@", value: "agt-version=1" },
-  { type: "TXT", name: "@", value: "agt-name=Research Agent" },
+  { type: "TXT", name: "@", value: "agt-name=Example Agent" },
   ...
   { type: "A", name: "@", value: "34.22.218.54" },      // Freename default
   { type: "NS", name: "@", value: "ns1.noto.network" },  // Freename default

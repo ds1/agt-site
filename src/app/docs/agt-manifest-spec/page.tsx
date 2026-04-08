@@ -304,16 +304,16 @@ export default function ManifestSpecPage() {
           <h2>Example</h2>
           <pre>
             <code>{`agt-version=1
-agt-name=Research Agent
-agt-description=Deep research and source citation
-agt-icon=https://researcher.example.com/icon.png
-agt-website=https://researcher.example.com
+agt-name=Example Agent
+agt-description=General-purpose assistant agent
+agt-icon=https://exampleagent.example.com/icon.png
+agt-website=https://exampleagent.example.com
 agt-protocol=mcp
 agt-protocol=http
 agt-cap=research
 agt-cap=summarization
-agt-endpoint-mcp=https://researcher.example.com/mcp
-agt-endpoint-http=https://researcher.example.com/api/v1
+agt-endpoint-mcp=https://exampleagent.example.com/mcp
+agt-endpoint-http=https://exampleagent.example.com/api/v1
 agt-pricing=freemium
 agt-owner=0xABCD1234...`}</code>
           </pre>
@@ -322,7 +322,7 @@ agt-owner=0xABCD1234...`}</code>
           <pre>
             <code>{`import { resolveAgent } from '@agt/resolver'
 
-const agent = await resolveAgent('researcher.agt')
+const agent = await resolveAgent('exampleagent.agt')
 
 agent.protocols    // ['mcp', 'http']
 agent.capabilities // ['research', 'summarization']
@@ -331,6 +331,59 @@ agent.endpoints[0] // { protocol: 'mcp', url: 'https://...' }`}</code>
           <p>
             <code>@agt/resolver</code> — zero dependencies, works in Node,
             Deno, Bun, and browsers.
+          </p>
+
+          <h2 id="manifest-v2">Manifest v2: JSON on IPFS (Draft)</h2>
+          <p>
+            v0.2.0 adds a JSON manifest hosted on IPFS, referenced by a
+            single TXT pointer: <code>agt-manifest=ipfs://&#123;cid&#125;</code>.
+            This enables capability schemas, protocol versions, structured
+            pricing, and cryptographic signatures. v1 inline records continue
+            to work unchanged.
+          </p>
+
+          <h3>Resolution Priority</h3>
+          <ol>
+            <li>
+              Check for <code>agt-manifest</code> TXT pointer &rarr; fetch JSON
+              from IPFS.
+            </li>
+            <li>Fall back to <code>agt-version=1</code> inline TXT records.</li>
+          </ol>
+
+          <h3>v2 JSON Example</h3>
+          <pre>
+            <code>{`{
+  "agt": "2.0",
+  "domain": "exampleagent.agt",
+  "name": "Example Agent",
+  "description": "General-purpose assistant agent",
+  "protocols": [
+    { "id": "mcp", "version": "2025-11-05", "endpoint": "https://exampleagent.example.com/mcp" },
+    { "id": "http", "endpoint": "https://exampleagent.example.com/api/v1" }
+  ],
+  "capabilities": [
+    {
+      "id": "research",
+      "input": { "type": "string", "description": "Research query" },
+      "output": { "type": "object", "properties": { "summary": { "type": "string" }, "sources": { "type": "array" } } }
+    },
+    { "id": "summarization" }
+  ],
+  "pricing": { "model": "freemium", "free_tier": "10 queries/day" },
+  "owner": "0x912D39E13b0bDAe2C5Cf5D0E2f9F4B38aE9c7f6a",
+  "signature": "0x7f3e8d4c..."
+}`}</code>
+          </pre>
+          <p>
+            Full specification:{" "}
+            <a
+              href="https://github.com/ds1/agt-site/blob/master/spec/agt-manifest-v0.2.0.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              spec/agt-manifest-v0.2.0.md
+            </a>
           </p>
     </article>
   );

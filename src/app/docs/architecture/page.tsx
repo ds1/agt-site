@@ -113,8 +113,8 @@ export default function ArchitecturePage() {
 
       <h2>Resolution Flow</h2>
       <pre>
-        <code>{`Client calls resolveAgent("researcher.agt")
-  → GET https://apis.freename.io/api/v1/resolver/FNS/researcher.agt
+        <code>{`Client calls resolveAgent("exampleagent.agt")
+  → GET https://apis.freename.io/api/v1/resolver/FNS/exampleagent.agt
   → Response includes TXT records
   → Parser finds agt-version=1 sentinel
   → Extracts all agt-* fields into AgentManifest
